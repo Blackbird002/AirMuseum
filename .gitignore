@@ -1,0 +1,10 @@
+finalProject
+errcheck.o
+drawLibrary.o
+fatal.o
+print-dl.o
+mathHelpers.o
+project.o
+finalProject.o
+loadtexbmp.o
+.vscode/settings.json

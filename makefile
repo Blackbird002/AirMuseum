@@ -26,7 +26,9 @@ fatal.cpp.o: fatal.cpp CSCIx229.h
 finalProject.cpp.o: glfw21.cpp CSCIx229.h
 loadtexbmp.cpp.o: loadtexbmp.cpp CSCIx229.h
 print-dl.cpp.o: print-dl.cpp CSCIx229.h
+mathHelpers.cpp.o: mathHelpers.cpp CSCIx229.h
 project.cpp.o: project.cpp CSCIx229.h
+drawLibrary.cpp.o: drawLibrary.cpp CSCIx229.h
 
 # Compile rules
 .c.o:
@@ -35,7 +37,7 @@ project.cpp.o: project.cpp CSCIx229.h
 	g++ -c $(CFLG) $<
 
 #  Link
-finalProject:finalProject.o fatal.o loadtexbmp.o project.o errcheck.o print-dl.o
+finalProject:finalProject.o fatal.o loadtexbmp.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o
 	g++ -O3 -o $@ $^  -lglfw -lGLU -lGL -lm
 
 #  Clean

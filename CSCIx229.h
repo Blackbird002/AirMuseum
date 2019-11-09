@@ -18,8 +18,8 @@
 #include <GL/glut.h>
 #endif
 
-#define Cos(th) cos(3.1415926/180*(th))
-#define Sin(th) sin(3.1415926/180*(th))
+#define Cos(th) (float)cos(3.1415926/180*(th))
+#define Sin(th) (float)sin(3.1415926/180*(th))
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +30,28 @@ void Fatal(const char* format , ...);
 unsigned int LoadTexBMP(const char* file);
 void Project(double fov,double asp,double dim, int projectionMode);
 void ErrCheck(const char* where);
+void findDispVector(double x1, double y1, double z1, double x2, double y2, double z2, double* vX, double* vY, double* vZ);
+void findNormalVector(double x1, double y1, double z1, double x2, double y2, double z2, double* uX, double* uY, double* uZ);
+void Vertex(int th,int ph);
+void Sphere(double x,double y,double z,double r, float emission, float shiny);
+void drawAxisLines();
+void drawAxisLabels();
+void ball(double x,double y,double z,double r, float emission, float shiny, int inc);
+void engineSphere(double x,double y,double z,double r, double yRot, float emission, float shiny);
+void disk(double x,double y,double z,double r, double th);
+void hangarFloorSquare(double x, double z);
+void hangarFloor(double x, double z);
+void hangarFloorRectangle(double x, double z);
 int  LoadOBJ(const char* file);
+void hangarLengthWall(double x, double y, double z);
+void drawHangar(double x, double y, double z, double r);
+void hangarRoof(double x,double y,double z,double r, double th);
+void hangarWidthWall(double x, double y, double z);
+void centerRect(double x, double z);
+void skyboxCube(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double th, float emission, float shiny, unsigned int texture[]);
+
 
 #ifdef __cplusplus
 }

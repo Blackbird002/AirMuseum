@@ -1,22 +1,15 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GLFW/glfw3.h>
 #include "CSCIx229.h"
+#include "Camera.cpp"
 #include <iostream>
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
 
-// What the camera is looking at vector
-double cameraLookX , cameraLookY , cameraLookZ;
 
-// XZ position of the camera in 1st person (eye)
-double cameraX=50, cameraY =10 , cameraZ=25;
-
-int th=321;         //  Azimuth of view angle (y)
-int ph=29;         //  Elevation of view angle (x)
-double dim=150;   // Dimension of orthogonal box
 int currentScene = 1;
-bool drawAxis = false;
+bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
 
@@ -24,7 +17,7 @@ double asp=1;     //  Aspect ratio
   1 - First person 
   2 - Perspective (starts in perspective mode)
 */
-int projectionMode = 1;     
+int projectionMode = 2;     
 
 double THX;
 double THZ;
@@ -32,25 +25,25 @@ double THZ;
 // Light values
 int light     =   0;  //  Lighting
 int one       =   1;  // Unit value
-int distance  =  70; // Light distance
+float distance  =  70.0f; // Light distance
 int inc       =  10;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
-int emission  =   0;  // Emission intensity (%)
-int ambient   =  25;  // Ambient intensity (%)
-int diffuse   = 100;  // Diffuse intensity (%)
-int specular  =   0;  // Specular intensity (%)
+float emission  =   0;  // Emission intensity (%)
+float ambient   =  25.0f;  // Ambient intensity (%)
+float diffuse   = 100.0f;  // Diffuse intensity (%)
+float specular  =   0.0f;  // Specular intensity (%)
 int shininess =   0;  // Shininess (power of two)
 float shiny   =   1;  // Shininess (value)
-int zh        =  90;  // Light azimuth
-float ylight  =   0;  // Elevation of light
+float zh        =  90.0f;  // Light azimuth
+float ylight  =   0.0f;  // Elevation of light
 int move      =   1;  //  Move light
 unsigned int texture[12]; // Texture names
 
-//Texture settings
-int mode=0;       //  Texture mode
-
 double previousMouseY;
+double previousMouseX;
+
+Camera* camera;
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -58,32 +51,17 @@ double previousMouseY;
 void display();
 void reshape(int,int);
 void idle();
-void drawAxisLines();
-void drawAxisLabels();
 void init();
-void strafeLeft(double bX, double bY, double bZ, double moveUnits);
-void strafeRight(double bX, double bY, double bZ, double moveUnits);
-void moveForward(double bX, double bY, double bZ, double moveUnits);
-void moveBackward(double bX, double bY, double bZ, double moveUnits);
 void mouseCallback(GLFWwindow *window, double x, double y);
-void findDispVector(double x1, double y1, double z1, double x2, double y2, double z2, double* vX, double* vY, double* vZ);
-void findNormalVector(double x1, double y1, double z1, double x2, double y2, double z2, double* uX, double* uY, double* uZ);
 void key(GLFWwindow* window,int key,int scancode,int action,int mods);
 void error(int error, const char* text);
-static void ball(double x,double y,double z,double r);
-static void Sphere(double x,double y,double z,double r);
-static void engineSphere(double x,double y,double z,double r,double yRot);
 static void FighterJet(double x,double y,double z,
                        double dx,double dy,double dz,
                        double ux,double uy, double uz, double scale, double thx, double thz);
 static void XB70Bomber(double x,double y,double z,
                        double dx,double dy,double dz,
                        double ux,double uy, double uz, double scale, double thx, double thz);
-static void skyboxCube(double x,double y,double z,
-                 double dx,double dy,double dz,
-                 double th);
-static void disk(double x,double y,double z,double r, double th);
-
+void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
 /*
  * GLFW errors
  */
@@ -100,31 +78,31 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
   if (action==GLFW_RELEASE) return;
 
   //  Check for shift
-  int shift = (mods & GLFW_MOD_SHIFT);
+  //int shift = (mods & GLFW_MOD_SHIFT);
 
   //  Exit on ESC
   if (key == GLFW_KEY_ESCAPE)
     glfwSetWindowShouldClose(window,1);
   else if (key==GLFW_KEY_RIGHT)
-    th += 2.5;
+    camera->th += 2.5;
   else if (key==GLFW_KEY_LEFT)
-    th -= 2.5;
+    camera->th -= 2.5;
   //  Increase/decrease elevation
   else if (key==GLFW_KEY_UP)
-    ph += 2.5;
+    camera->ph += 2.5;
   else if (key==GLFW_KEY_DOWN)
-    ph -= 2.5;
+    camera->ph -= 2.5;
 
   //Moving camera only in First person & FOV
   if (projectionMode == 1){
     if(key == GLFW_KEY_W)
-      moveForward(cameraLookX, cameraLookY, cameraLookZ, 2);
+      camera->moveForward();
     else if(key == GLFW_KEY_S)
-      moveBackward(cameraLookX, cameraLookY, cameraLookZ, 2);  
+      camera->moveBackward();  
     else if(key == GLFW_KEY_A)
-      strafeLeft(cameraLookX, cameraLookY, cameraLookZ, 2);
+      camera->strafeLeft();
     else if(key == GLFW_KEY_D)
-      strafeRight(cameraLookX, cameraLookY, cameraLookZ, 2);
+      camera->strafeRight();
       //  Change field of view angle
     else if (key == GLFW_KEY_Z){
         fov--;   
@@ -134,368 +112,32 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
   }
   
   // Reproject
-  Project(fov, asp, dim, projectionMode);
+  Project(fov, asp, camera->dim, projectionMode);
 }
 
 void mouseCallback(GLFWwindow *window, double x, double y)
 {
   double deltaY = previousMouseY - y;
+  double deltaX = previousMouseX - x;
   //std::cout<<"Mouse X: " <<x <<" " <<"Mouse Y: " <<y <<std::endl;
 
-  if(ph < 90 && (deltaY > 0))
-    ph += 1;
+  if(camera->ph < 91.0 && (deltaY > 0))
+    camera->ph += 3;
 
-  if(ph > -90 && (deltaY) < 0)
-    ph -= 1;
+  if(camera->ph > -91.0 && (deltaY) < 0)
+    camera->ph -= 3;
 
-  th = x;
+  if(deltaX < 0)
+    camera->th += 3;
+
+  if(deltaX > 0)
+    camera->th -= 3;
 
   previousMouseY = y;
+  previousMouseX = x;
   // Reproject
-  Project(fov, asp, dim, projectionMode);
+  Project(fov, asp, camera->dim, projectionMode);
 }	
-
-// ----------------------------------------------------------
-// disk
-// ----------------------------------------------------------
-
-/*
- *  Draw a disk at (x,y,z) radius r
- *  The resolution is fixed at 36 slices (10 degrees each)
- */
-static void disk(double x,double y,double z,double r, double th)
-{
-  glEnable(GL_TEXTURE_2D);
-  //  Save transformation
-  glPushMatrix();
-  //  Offset and scale
-  glTranslated(x,y,z);
-   glRotated(th,0,1,0);
-  glScaled(r,r,r);
-  //  Head & Tail
-  glColor3f(1,1,1);
-  glNormal3f(0,0,-1);
-  glBegin(GL_TRIANGLE_FAN);
-  glTexCoord2f(0.5,0.5);
-  glVertex3f(0,0,1);
-  for(int k=0;k<=360;k+=10){
-    glTexCoord2f(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
-    glVertex3f(Cos(k),Sin(k),1);
-  }
-  glEnd();
-  //  Undo transformations
-  glPopMatrix();
-  glDisable(GL_TEXTURE_2D);
-}
-
-
-// ----------------------------------------------------------
-// Skybox Cube
-// ----------------------------------------------------------
-
-/*
- *  Draw the skybox cube
- *     at (x,y,z)
- *     dimensions (dx,dy,dz)
- *     rotated th about the y axis
- */
-static void skyboxCube(double x,double y,double z,
-                 double dx,double dy,double dz,
-                 double th)
-{
-  //  Set specular color to white
-  float white[] = {1,1,1,1};
-  float Emission[]  = {0.0,0.0,0.01*emission,1.0};
-  glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
-  //  Save transformation
-  glPushMatrix();
-  //  Offset, scale and rotate
-  glTranslated(x,y,z);
-  glRotated(th,0,1,0);
-  glScaled(dx,dy,dz);
-  //  Enable textures
-  glEnable(GL_TEXTURE_2D);
-  glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
-  glColor3f(1,1,1);
-
-  //  Front
-  glBindTexture(GL_TEXTURE_2D,texture[5]);
-  glBegin(GL_QUADS);
-    glNormal3f( 0, 0, 1);
-    glTexCoord2f(0,0); glVertex3f(-1,-1, 1);
-    glTexCoord2f(1,0); glVertex3f(+1,-1, 1);
-    glTexCoord2f(1,1); glVertex3f(+1,+1, 1);
-    glTexCoord2f(0,1); glVertex3f(-1,+1, 1);
-  glEnd();
-
-  //  Back
-  glBindTexture(GL_TEXTURE_2D,texture[10]);
-  glBegin(GL_QUADS);
-    glNormal3f( 0, 0,-1);
-    glTexCoord2f(0,0); glVertex3f(+1,-1,-1);
-    glTexCoord2f(1,0); glVertex3f(-1,-1,-1);
-    glTexCoord2f(1,1); glVertex3f(-1,+1,-1);
-    glTexCoord2f(0,1); glVertex3f(+1,+1,-1);
-  glEnd();
-
-  //  Right
-  glBindTexture(GL_TEXTURE_2D,texture[7]);
-  glBegin(GL_QUADS);
-    glNormal3f(+1, 0, 0);
-    glTexCoord2f(0,0); glVertex3f(+1,-1,+1);
-    glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
-    glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
-    glTexCoord2f(0,1); glVertex3f(+1,+1,+1);
-  glEnd();
-
-  //  Left
-  glBindTexture(GL_TEXTURE_2D,texture[6]);
-  glBegin(GL_QUADS);
-    glNormal3f(-1, 0, 0);
-    glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
-    glTexCoord2f(1,0); glVertex3f(-1,-1,+1);
-    glTexCoord2f(1,1); glVertex3f(-1,+1,+1);
-    glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
-  glEnd();
-
-  //  Top
-  glBindTexture(GL_TEXTURE_2D,texture[8]);
-  glBegin(GL_QUADS);
-    glNormal3f( 0,+1, 0);
-    glTexCoord2f(0,0); glVertex3f(-1,+1,+1);
-    glTexCoord2f(1,0); glVertex3f(+1,+1,+1);
-    glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
-    glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
-  glEnd();
-
-  //  Bottom
-  glBindTexture(GL_TEXTURE_2D,texture[9]);
-  glBegin(GL_QUADS);
-    glNormal3f( 0,-1, 0);
-    glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
-    glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
-    glTexCoord2f(1,1); glVertex3f(+1,-1,+1);
-    glTexCoord2f(0,1); glVertex3f(-1,-1,+1);
-  glEnd();
-  //  Undo transformations and textures
-  glPopMatrix();
-  glDisable(GL_TEXTURE_2D);
-}
-
-void findDispVector(double x1, double y1, double z1, double x2, double y2, double z2, double* vX, double* vY, double* vZ){
-  *vX = x2 - x1;
-  *vY = y2 - y1;
-  *vZ = z2 - z1;
-}
-
-void findNormalVector(double x1, double y1, double z1, double x2, double y2, double z2, double* uX, double* uY, double* uZ){
-  double crossX = (y1*z2) - (z1*y2);
-  double crossY = (z1*x2) - (x1*z2);
-  double crossZ = (x1*y2) - (y1*x2);
-
-  //Normalize the vector(finds the unit vector of the normal)
-  double mag = sqrt(crossX*crossX + crossY*crossY + crossZ*crossZ);
-  *uX = crossX /= mag;
-  *uY = crossY /= mag;
-  *uZ = crossZ /= mag;
-}
-
-void strafeLeft(double bX, double bY, double bZ, double moveUnits){
-  double aX = 0;
-  double aY = 1;
-  double aZ = 0;
-
-  //Calculate unit vector of lookAt vector:
-  double mag = sqrt(bX*bX + bY*bY + bZ*bZ);
-  bX /= mag;
-  bY /= mag;
-  bZ /= mag;
-
-  //Calculate cross product of vector a and b (a x b):
-  double crossX = (aY*bZ) - (aZ*bY);
-  //double crossY = (aY*bX) - (aX*bZ);
-  double crossZ = (aX*bZ) - (aY*bX);
-
-  //Add cross vector to camera position vector 
-  cameraX += moveUnits*crossX;
-  //cameraY += moveUnits*crossY;
-  cameraZ += moveUnits*crossZ;
-}
-
-void strafeRight(double bX, double bY, double bZ, double moveUnits){
-  double aX = 0;
-  double aY = -1;
-  double aZ = 0;
-
-  //Calculate unit vector of lookAt vector:
-  double mag = sqrt(bX*bX + bY*bY + bZ*bZ);
-  bX /= mag;
-  bY /= mag;
-  bZ /= mag;
-
-  //Calculate cross product of vector a and b (a x b):
-  double crossX = (aY*bZ) - (aZ*bY);
-  //double crossY = (aY*bX) - (aX*bZ);
-  double crossZ = (aX*bZ) - (aY*bX);
-
-  //Add cross vector to camera position vector 
-  cameraX += moveUnits*crossX;
-  //cameraY += moveUnits*crossY;
-  cameraZ += moveUnits*crossZ;
-}
-
-void moveForward(double bX, double bY, double bZ, double moveUnits){
-
-  //Calculate unit vector of lookAt vector:
-  double mag = sqrt(bX*bX + bY*bY + bZ*bZ);
-  bX /= mag;
-  bY /= mag;
-  bZ /= mag;
-
-  cameraX += moveUnits*bX;
-  cameraZ += moveUnits*bZ;
-}
-
-void moveBackward(double bX, double bY, double bZ, double moveUnits){
-
-  //Calculate unit vector of lookAt vector:
-  double mag = sqrt(bX*bX + bY*bY + bZ*bZ);
-  bX /= mag;
-  bY /= mag;
-  bZ /= mag;
-
-  cameraX -= moveUnits*bX;
-  cameraZ -= moveUnits*bZ;
-}
-
-/*
- *  Draw vertex in polar coordinates with normal
- */
-static void Vertex(int th,int ph)
-{
-  double x = Cos(th)*Cos(ph);
-  double y = Sin(th)*Cos(ph);
-  double z =         Sin(ph);
-  glNormal3d(x,y,z);
-  glTexCoord2d(th/360.0,ph/180.0+0.5);
-  glVertex3d(x,y,z);
-}
-
-/*
- *  Draw a ballEngineSphere
- *     at (x,y,z)
- *     radius (r)
- */
-static void ball(double x,double y,double z,double r)
-{
-   int th,ph;
-   float yellow[] = {1.0,1.0,0.0,1.0};
-   float Emission[]  = {0.0,0.0,0.01*emission,1.0};
-   //  Save transformation
-   glPushMatrix();
-   //  Offset, scale and rotate
-   glTranslated(x,y,z);
-   glScaled(r,r,r);
-   //  White ball
-   glColor3f(1,1,1);
-   glMaterialf(GL_FRONT,GL_SHININESS,shiny);
-   glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
-   glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
-   //  Bands of latitude
-   for (ph=-90;ph<90;ph+=inc)
-   {
-      glBegin(GL_QUAD_STRIP);
-      for (th=0;th<=360;th+=2*inc)
-      {
-         Vertex(th,ph);
-         Vertex(th,ph+inc);
-      }
-      glEnd();
-   }
-   //  Undo transofrmations
-   glPopMatrix();
-}
-
-/*
- *  Draw a Sphere
- *     at (x,y,z)
- *     radius (r)
- */
-static void Sphere(double x,double y,double z,double r)
-{
-  const int d=10;
-  int th,ph;
-  float yellow[] = {1.0,1.0,0.0,1.0};
-  float Emission[]  = {0.0,0.0,0.01*emission,1.0};
-
-  //  Save transformation
-  glPushMatrix();
-  //  Offset and scale
-  glTranslated(x,y,z);
-  glScaled(r,r,r);
-
-  glMaterialf(GL_FRONT,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
-  glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
-
-  //  Latitude bands
-  for (ph=-90;ph<90;ph+=d)
-  {
-    glBegin(GL_QUAD_STRIP);
-    for (th=0;th<=360;th+=d)
-    {
-      Vertex(th,ph);
-      glTexCoord2f(th/360.0,ph/90.0);
-      Vertex(th,ph+d);
-    }
-    glEnd();
-  }
-
-  //  Undo transformations
-  glPopMatrix();
-}
-
-/*
- *  Draw a Sphere
- *     at (x,y,z)
- *     radius (r)
- */
-static void engineSphere(double x,double y,double z,double r, double yRot)
-{
-  const int d=10;
-  int th,ph;
-  float yellow[] = {1.0,1.0,0.0,1.0};
-  float Emission[]  = {0.0,0.0,0.01*emission,1.0};
-
-  //  Save transformation
-  glPushMatrix();
-  //  Offset and scale
-  glTranslated(x,y,z);
-  glScaled(r,r,r);
-  glRotated(yRot,0,1,0);
-
-  glMaterialf(GL_FRONT,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
-  glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
-
-  //  Latitude bands
-  for (ph=0;ph<50;ph+=d)
-  {
-    glBegin(GL_QUAD_STRIP);
-    for (th=0;th<=360;th+=d)
-    {
-      Vertex(th,ph);
-      glTexCoord2f(th/360.0,ph/90.0);
-      Vertex(th,ph+d);
-    }
-    glEnd();
-  }
-
-  //  Undo transformations
-  glPopMatrix();
-}
 
 // ----------------------------------------------------------
 //  FighterJet
@@ -515,6 +157,7 @@ static void FighterJet(double x,double y,double z,
 {
   //-20
   // Dimensions used to size airplane
+  int mode = 0;
   const double wid = 1;   //The "width of the plane's "Fuselage"
   const double shipBowXfront = 0;    //X of front nose
   const double shipBowXend = -4;     //X of end nose
@@ -566,7 +209,7 @@ static void FighterJet(double x,double y,double z,
 
   //  Set specular color to white
   float white[] = {1,1,1,1};
-  float Emission[]  = {0.0,0.0,0.01*emission,1.0};
+  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
@@ -677,7 +320,7 @@ static void FighterJet(double x,double y,double z,
   // ---------------------------------------------------------
   glColor3f(1,1,1);
   glBindTexture(GL_TEXTURE_2D,texture[3]);
-  Sphere(cockpitX,cockpitY,0,0.9);
+  Sphere(cockpitX,cockpitY,0,0.9, emission, shiny);
 
   // ----------------------------------------------------------
   // Canards
@@ -806,7 +449,7 @@ static void FighterJet(double x,double y,double z,
   // Rear engine
   // ----------------------------------------------------------
   glBindTexture(GL_TEXTURE_2D,texture[4]);
-  engineSphere(shipSternX,0,0,1,-90);
+  engineSphere(shipSternX,0,0,1,-90, emission, shiny);
 
   glBindTexture(GL_TEXTURE_2D,texture[11]);
   disk(shipSternX-1-0.01,0,0,1,90);
@@ -832,6 +475,7 @@ void XB70Bomber(double x,double y,double z,
                 double dx,double dy,double dz,
                 double ux,double uy, double uz, double scale, double thx, double thz)
 {
+  int mode = 0;
   const double shipFrontNoseX = 1.0;
   const double shipRearNoseX = -9.0;
   const double shipWidth = 2.0;
@@ -900,7 +544,7 @@ void XB70Bomber(double x,double y,double z,
 
   //  Set specular color to white
   float white[] = {1,1,1,1};
-  float Emission[]  = {0.0,0.0,0.01*emission,1.0};
+  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
@@ -1271,7 +915,7 @@ void XB70Bomber(double x,double y,double z,
   // ----------------------------------------------------------
   glColor3f(1,1,1);
   glBindTexture(GL_TEXTURE_2D,texture[3]);
-  Sphere(cockpitLocX,shipFuselageHeight - 0.8,0,shipWidth - 0.25);
+  Sphere(cockpitLocX,shipFuselageHeight - 0.8,0,shipWidth - 0.25, emission, shiny);
 
   //  Undo transformations
   glPopMatrix();
@@ -1283,24 +927,15 @@ void XB70Bomber(double x,double y,double z,
 // ----------------------------------------------------------
 void display(GLFWwindow* window){
   //  Clear screen and Z-buffer
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
   // Reset transformations
   glLoadIdentity();
 
   if(projectionMode == 1){
-    //First person
-    cameraLookX = 2*dim*Sin(th);
-    cameraLookZ = -2*dim*Cos(th);
-    cameraLookY = 2*dim*Sin(ph);
-    gluLookAt(cameraX,cameraY,cameraZ,
-              cameraX+cameraLookX,cameraLookY + cameraLookY,cameraZ+cameraLookZ,
-              0,1,0); 
+    camera->firstPerson();
   }else if(projectionMode == 2){
-    //  Perspective - set eye position
-    double Ex = -2*(dim/2)*Sin(th)*Cos(ph);
-    double Ey = +2*(dim/2)        *Sin(ph);
-    double Ez = +2*(dim/2)*Cos(th)*Cos(ph);
-    gluLookAt(Ex,Ey,Ez , 0,0,0 , 0,Cos(ph),0);
+    camera->perspectiveMode();
   }
 
   //  Flat or smooth shading
@@ -1310,14 +945,14 @@ void display(GLFWwindow* window){
   if (light)
   {
     //  Translate intensity to color vectors
-    float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-    float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-    float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+    float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0};
+    float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0};
+    float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0};
     //  Light position
-    float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
+    float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0f};
     //  Draw light position as ball (still no lighting here)
     glColor3f(1,1,1);
-    ball(Position[0],Position[1],Position[2] , 0.25);
+    ball(Position[0],Position[1],Position[2] ,0.25, emission, shiny, inc);
     //  OpenGL should normalize normal vectors
     glEnable(GL_NORMALIZE);
     //  Enable lighting
@@ -1344,38 +979,13 @@ void display(GLFWwindow* window){
     drawAxisLabels();
   }
 
-  switch(currentScene){
-    case 1:
-      XB70Bomber(10,-5,0 , 1,0,0, 0,1,0, 1.6, 0, 5);
-      FighterJet(-120,-5.5,0, 1,0,0, 0,1,0, 1.6, 0, 5);
-      FighterJet(10,-5,-50 , 1,0,0, 0,1,0, 1.6, 0, 5);
-      FighterJet(10,-5,50 , 1,0,0, 0,1,0, 1.6, 0, 5);
-      FighterJet(-40,-5,90 , 1,0,0, 0,1,0, 1.6, 0, 5);
-      FighterJet(-40,-5,-90 , 1,0,0, 0,1,0, 1.6, 0, 5);
-      FighterJet(90,20,0, 1,0,0, 0,1,0, 1.6, 0, 5);
-      skyboxCube(0,0,0,250,250,250,0);
-      break;
-    case 2:
-      FighterJet(10,5,50, 1,0,0, 0,1,0,1.6, 25,25);
-      FighterJet(10,5,-50, 1,0,0, 0,1,0,1.6, -25,25);
-      FighterJet(-10,50,0, 1,0,0, 0,1,0,1.6, 0, 25);
-      XB70Bomber(20,20,0 , 1,0,0, 0,1,0,1.6, 0, 10);
-      FighterJet(20,-40,0, 1,0,0, 0,-1,0,1.6, 0, 25);
-      skyboxCube(0,0,0,250,250,250,0);
-      break;
-    case 3:
-      XB70Bomber(10,-5,0 , 1,0,0, 0,1,0, 1.6, THX+90, 0);
-      FighterJet(10,-5,-40 , 1,0,0, 0,1,0, 1.6, -THX, 0);
-      FighterJet(10,-5,40 , 1,0,0, 0,1,0, 1.6, THX, 0);
-      FighterJet(10,30,0 , 1,0,0, 0,1,0, 1.6, 0, THX);
-      skyboxCube(0,0,0,250,250,250,0);
-      break; 
-  }
+  drawHangar(25,0,17.5,15);
+  //skyboxCube(0,0,0,250,250,250,0, emission, shiny, texture);  
   
   //  Display parameters
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
-  Print("Angle=%d,%d  Dim=%.1f FOV=%d Light=%s",th,ph,dim,fov,light?"On":"Off");
+  Print("Angle=%.1f,%.1f Dim=%.1f FOV=%d Light=%s",camera->th,camera->ph,camera->dim,fov,light?"On":"Off");
   if (light)
   {
     glWindowPos2i(5,45);
@@ -1402,54 +1012,6 @@ void display(GLFWwindow* window){
   glfwSwapBuffers(window);
 }
 
-void drawAxisLines(){
-  // X Axis line
-  glBegin(GL_LINES);
-  glColor3f(1, 0, 0); //Red
-  glVertex3f(0, 0, 0);
-  glVertex3f(25, 0, 0);
-
-  // -X Line
-  glVertex3f(0, 0, 0);
-  glVertex3f(-25, 0, 0);
-
-  // Y Axis line
-  glColor3f(0, 1, 0); //Green
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 25, 0);
-
-  // -Y line
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, -25, 0);
-
-  // Z Axis line
-  glColor3f(0, 0, 1); //Blue
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, 25);
-
-  // -Z line
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, -25);
-
-  glEnd();
-}
-
-void drawAxisLabels(){
-  glColor3f(1, 1, 1); //White
-  glRasterPos3d(25.05,0,0);
-  Print("X");
-  glRasterPos3d(-25.05,0,0);
-  Print("-X");
-  glRasterPos3d(0,25.05,0);
-  Print("Y");
-  glRasterPos3d(0,-25.05,0);
-  Print("-Y");
-  glRasterPos3d(0,0,25.05);
-  Print("Z");
-  glRasterPos3d(0,0,-25.05);
-  Print("-Z");
-}
-
 void reshape(GLFWwindow* window,int width,int height)
 {
   //  Ratio of the width to the height of the window
@@ -1457,7 +1019,7 @@ void reshape(GLFWwindow* window,int width,int height)
   //  Set the viewport to the entire window
   glViewport(0,0, width,height);
   //  Set projection
-  Project(fov, asp, dim, projectionMode);
+  Project(fov, asp, camera->dim, projectionMode);
 }
 
 // ----------------------------------------------------------
@@ -1468,12 +1030,14 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
+  camera = new Camera(30,15,40);
+
   //  Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
 
   //  Error callback
-
   glfwSetErrorCallback(error);
+
   //  Set window properties
   glfwWindowHint(GLFW_RESIZABLE,1);
   glfwWindowHint(GLFW_DOUBLEBUFFER,1);
@@ -1481,6 +1045,10 @@ int main(int argc, char* argv[]){
   //  Create window and make current
   window = glfwCreateWindow(1280,720, "Riad Shash (Ray) - GLFW", nullptr, nullptr);
   if (!window) Fatal("Cannot create GLFW window\n");
+
+  //Center the GLFW window
+  centerWindow(window, glfwGetPrimaryMonitor());
+  
   glfwMakeContextCurrent(window);
 
   //  Enable VSYNC
@@ -1497,6 +1065,8 @@ int main(int argc, char* argv[]){
   //Callbacks
   glfwSetKeyCallback(window,key);
   glfwSetCursorPosCallback(window,mouseCallback);
+  // Options, removes the mouse cursor for a more immersive experience
+  //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
 
   //  Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
@@ -1531,7 +1101,29 @@ int main(int argc, char* argv[]){
   //  Shut down GLFW
   glfwDestroyWindow(window);
   glfwTerminate();
+  delete camera;
 
   // ANSI C requires main to return int
   return 0;
+}
+
+//https://vallentin.io/2014/02/07/glfw-center-window
+void centerWindow(GLFWwindow *window, GLFWmonitor *monitor)
+{
+  if (!monitor)
+    return;
+
+  const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+  if (!mode)
+    return;
+
+  int monitorX, monitorY;
+  glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+
+  int windowWidth, windowHeight;
+  glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+  glfwSetWindowPos(window,
+                    monitorX + (mode->width - windowWidth) / 2,
+                    monitorY + (mode->height - windowHeight) / 2);
 }
