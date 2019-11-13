@@ -1,12 +1,3 @@
 finalProject
-errcheck.o
-drawLibrary.o
-fatal.o
-print-dl.o
-mathHelpers.o
-project.o
-finalProject.o
-loadtexbmp.o
+*.o
 .vscode/settings.json
-XB70Bomber.o
-FighterJet.o
