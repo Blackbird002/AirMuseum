@@ -9,7 +9,7 @@ public:
     // XZ position of the camera in 1st person (eye)
     double cameraX=50, cameraY =10 , cameraZ=25;
 
-    double dim=150;   // Dimension of orthogonal box
+    double dim=200;   // Dimension of orthogonal box
 
     double th=321;         //  Azimuth of view angle (y)
     double ph=29;         //  Elevation of view angle (x)
@@ -20,10 +20,11 @@ public:
         this->cameraZ = 25.0;
     }
 
-    Camera(double x, double y, double z){
+    Camera(double x, double y, double z, double dim){
         this->cameraX = x;
         this->cameraY = y;
         this->cameraZ = z;
+        this->dim = dim;
     }
 
     double getDim(){return dim;}

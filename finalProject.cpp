@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "CSCIx229.h"
 #include "Camera.cpp"
+#include "Hangar.cpp"
 #include <iostream>
 // ----------------------------------------------------------
 // Global Variables
@@ -17,7 +18,7 @@ double asp=1;     //  Aspect ratio
   1 - First person 
   2 - Perspective (starts in perspective mode)
 */
-int projectionMode = 2;     
+int projectionMode = 1;     
 
 double THX;
 double THZ;
@@ -44,6 +45,7 @@ double previousMouseY;
 double previousMouseX;
 
 Camera* camera;
+Hangar* hangar;
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -531,7 +533,7 @@ void XB70Bomber(double x,double y,double z,
   //  Save current transforms
   glPushMatrix();
   //  Offset, scale and rotate
-  glTranslated(x,y,z);
+  glTranslated(x+35*scale,y,z);
   glMultMatrixd(mat);
   glRotated(thx,1,0,0);
   glRotated(thz,0,0,1);
@@ -553,6 +555,13 @@ void XB70Bomber(double x,double y,double z,
   glEnable(GL_TEXTURE_2D);
   glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
   //glBindTexture(GL_TEXTURE_2D,texture[0]);
+
+  // ----------------------------------------------------------
+  // Cockpit
+  // ----------------------------------------------------------
+  glColor3f(1,1,1);
+  glBindTexture(GL_TEXTURE_2D,texture[3]);
+  Sphere(cockpitLocX,shipFuselageHeight - 0.8,0,shipWidth - 0.25, emission, shiny);
 
   // ----------------------------------------------------------
   // Nose
@@ -881,6 +890,15 @@ void XB70Bomber(double x,double y,double z,
     glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, shipWidth);
   glEnd();
 
+    //Right inlet side
+  glBegin(GL_QUADS);
+    glNormal3d(0,0,1);
+    glTexCoord2f(3,0.2);glVertex3d(inletSidefrontX,inletY,shipWidth);
+    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, shipWidth+5);
+    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, shipWidth+5);
+    glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, shipWidth);
+  glEnd();
+
     //Left inlet side
   glBegin(GL_QUADS);
     glNormal3d(0,0,-1);
@@ -890,12 +908,21 @@ void XB70Bomber(double x,double y,double z,
     glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, -shipWidth);
   glEnd();
 
+  //Left inlet side outside
+  glBegin(GL_QUADS);
+    glNormal3d(0,0,-1);
+    glTexCoord2f(3,0.2);glVertex3d(inletSidefrontX,inletY,-shipWidth);
+    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, -shipWidth-5);
+    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, -shipWidth-5);
+    glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, -shipWidth);
+  glEnd();
+
   //Back inlet left bottom side
   glColor3f(0.75,0.75,0.75);
   glBegin(GL_POLYGON);
     glNormal3d(0,-1,0);
     glTexCoord2f(2.8,0.2);glVertex3f(inletSidefrontX, inletY, shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, shipWidth);
+    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, shipWidth+5);
     glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, inletY, 0);
     glTexCoord2f(3,0);glVertex3d(inletMiddleForntX, inletY, 0);
   glEnd();
@@ -905,17 +932,18 @@ void XB70Bomber(double x,double y,double z,
   glBegin(GL_POLYGON);
     glNormal3d(0,-1,0);
     glTexCoord2f(2.8,0.2);glVertex3f(inletSidefrontX, inletY, -shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, -shipWidth);
+    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, -shipWidth-5);
     glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, inletY, 0);
     glTexCoord2f(3,0);glVertex3d(inletMiddleForntX, inletY, 0);
   glEnd();
 
   // ----------------------------------------------------------
-  // Cockpit
+  // Landing Gear
   // ----------------------------------------------------------
-  glColor3f(1,1,1);
-  glBindTexture(GL_TEXTURE_2D,texture[3]);
-  Sphere(cockpitLocX,shipFuselageHeight - 0.8,0,shipWidth - 0.25, emission, shiny);
+  drawLandingGear(frontFuselageXEnd+6,-shipWidth,0,5);
+  drawLandingGear(inletMiddleRearX+10,inletY,4,4);
+  drawLandingGear(inletMiddleRearX+10,inletY,-4,4);
+
 
   //  Undo transformations
   glPopMatrix();
@@ -979,9 +1007,10 @@ void display(GLFWwindow* window){
     drawAxisLabels();
   }
 
-  drawHangar(25,0,17.5,15);
-  //skyboxCube(0,0,0,250,250,250,0, emission, shiny, texture);  
-  
+  skyboxCube(200,0,200,900,900,900,0, emission, shiny, texture);  
+  hangar->drawHangar(25,0,17.5,15);
+  XB70Bomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0);
+
   //  Display parameters
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
@@ -1005,6 +1034,9 @@ void display(GLFWwindow* window){
     Print("Axis ON");
   else
     Print("Axis OFF");
+
+  glWindowPos2i(5,105);
+  Print("Camera: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
 
   //  Render the scene and make it visible
   ErrCheck("display");
@@ -1030,7 +1062,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(30,15,40);
+  camera = new Camera(30,15,40,300);
 
   //  Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -1065,6 +1097,7 @@ int main(int argc, char* argv[]){
   //Callbacks
   glfwSetKeyCallback(window,key);
   glfwSetCursorPosCallback(window,mouseCallback);
+
   // Options, removes the mouse cursor for a more immersive experience
   //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
 
@@ -1088,6 +1121,7 @@ int main(int argc, char* argv[]){
 
   //Afterburner texture from: http://www.lockonfiles.com/files/file/1967-gys-f-15c-inner-afterburner-texture/
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
+  hangar = new Hangar();
 
   //  Event loop
   ErrCheck("init");

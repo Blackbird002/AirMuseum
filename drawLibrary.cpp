@@ -15,7 +15,7 @@ void disk(double x,double y,double z,double r, double th)
   glPushMatrix();
   //  Offset and scale
   glTranslated(x,y,z);
-   glRotated(th,0,1,0);
+    glRotated(th,0,1,0);
   glScaled(r,r,r);
   //  Head & Tail
   glColor3f(1,1,1);
@@ -242,6 +242,7 @@ void skyboxCube(double x,double y,double z,
     glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
   glEnd();
 
+  /*
   //  Bottom
   glBindTexture(GL_TEXTURE_2D,texture[9]);
   glBegin(GL_QUADS);
@@ -251,6 +252,7 @@ void skyboxCube(double x,double y,double z,
     glTexCoord2f(1,1); glVertex3f(+1,-1,+1);
     glTexCoord2f(0,1); glVertex3f(-1,-1,+1);
   glEnd();
+  */
   //  Undo transformations and textures
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
@@ -291,191 +293,79 @@ void ball(double x,double y,double z,double r, float emission, float shiny, int 
   glPopMatrix();
 }
 
-void hangarFloorSquare(double x, double z){
-  
-  glColor3d(1,0,0);
-  //  Save transformation
-  glPushMatrix();
-  glTranslated(x-3.5,0,z-3.5);
-
-  glBegin(GL_POLYGON);
-    glVertex3d(0,0,0);
-    glVertex3d(0,0,7);
-    glVertex3d(7,0,7);
-    glVertex3d(7,0,0);
-  glEnd();
-
-  //  Undo transofrmations
-  glPopMatrix();
-}
-
-void hangarFloor(double x, double z){
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(1,1);
-
-  glColor3d(0.1,0.1,0.1);
-  //  Save transformation
-  glPushMatrix();
-  glTranslated(x,0,z);
-
-  glBegin(GL_POLYGON);
-    glVertex3d(0,0,0);
-    glVertex3d(0,0,35);
-    glVertex3d(50,0,35);
-    glVertex3d(50,0,0);
-  glEnd();
-
-  //  Undo transofrmations
-  glPopMatrix();
-  //  Disable polygon offset
-  glDisable(GL_POLYGON_OFFSET_FILL);
-}
-
-void hangarFloorRectangle(double x, double z){
-  glColor3d(1,0,0);
-  //  Save transformation
-  glPushMatrix();
-  glTranslated(x-4.0,0,z-3.0);
-
-  glBegin(GL_POLYGON);
-    glVertex3d(0,0,0);
-    glVertex3d(0,0,6);
-    glVertex3d(8,0,6);
-    glVertex3d(8,0,0);
-  glEnd();
-
-  //  Undo transofrmations
-  glPopMatrix();
-}
-
-void centerRect(double x, double z){
-  glColor3d(1,0,0);
-  //  Save transformation
-  glPushMatrix();
-  glTranslated(x-4.5,0,z-5.0);
-
-  glBegin(GL_POLYGON);
-    glVertex3d(0,0,0);
-    glVertex3d(0,0,9);
-    glVertex3d(10,0,9);
-    glVertex3d(10,0,0);
-  glEnd();
-
-  //  Undo transofrmations
-  glPopMatrix();
-}
-
-void hangarLengthWall(double x, double y, double z){
-   glColor3d(1,1,1);
-  //  Save transformation
-  glPushMatrix();
-  glTranslated(x-25,y,z);
-
-  glBegin(GL_POLYGON);
-    glVertex3d(0,0,0);
-    glVertex3d(50,0,0);
-    glVertex3d(50,10,0);
-    glVertex3d(0,10,0);
-  glEnd();
-
-  //  Undo transofrmations
-  glPopMatrix();
-}
-
-void hangarWidthWall(double x, double y, double z){
-  glColor3d(0.5,0.5,0.5);
-  //  Save transformation
-  glPushMatrix();
-  glTranslated(x,y,z-17.5);
-
-  glBegin(GL_POLYGON);
-    glVertex3d(0,0,0);
-    glVertex3d(0,0,35);
-    glVertex3d(0,10,35);
-    glVertex3d(0,10,0);
-  glEnd();
-  //  Undo transofrmations
-  glPopMatrix();
-}
-
-// ----------------------------------------------------------
-// Aircraft Hangar Roof top portion
-// ----------------------------------------------------------
-
 /*
- *  Draw the hangar roof
- *  R - scale
- *  th - rotation about y axis
+ *  Draw a plane tire
+ *     at (x,y,z)
+ *     radius (r)
+ *     width w
+ *     rotation about
  */
-void hangarRoof(double x,double y,double z,double r, double th)
-{
+void planeTire(double x,double y,double z, double r){
+  glEnable(GL_TEXTURE_2D);
   //  Save transformation
   glPushMatrix();
   //  Offset and scale
-  glTranslated(x,y,z);
-  glRotated(th,0,1,0);
+  glTranslated(x,y,z-0.25);
+    glRotated(0,0,1,0);
   glScaled(r,r,r);
+  //  Head & Tail
+  glColor3f(0,0,0);
 
-  glColor3f(0.25,0.25,0.25);
-
-  //Rear section of roof
-  glColor3f(0.1,0.1,0.1);
+  glNormal3f(0,0,-1);
   glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0.5,0.5);
     glVertex3f(0,0,0);
-    for(int k=0;k<=180;k+=10){
-      glVertex3f(25*Cos(k),7*Sin(k),0);
+    for(int k=0;k<=360;k+=10){
+      glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+      glVertex3f(Cos(k),Sin(k),0);
     }
   glEnd();
 
-  //Front section of roof
+  glNormal3f(0,0,1);
   glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0,0,35);
-    for(int k=0;k<=180;k+=10){
-      glVertex3f(25*Cos(k),7*Sin(k),35);
-    }
+  glTexCoord2f(0.5,0.5);
+  glVertex3f(0,0,0.5);
+  for(int k=0;k<=360;k+=10){
+    glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+    glVertex3f(Cos(k),Sin(k),0.5);
+  }
   glEnd();
-
-  //  Enable blending
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
   glBegin(GL_QUAD_STRIP);
-    for(int k=0;k<=180;k+=10){
-      glVertex3f(25*Cos(k),7*Sin(k),0);
-      glVertex3f(25*Cos(k),7*Sin(k),35);
+    for(int k=0;k<=360;k+=10){
+      glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+      glVertex3f(Cos(k),Sin(k),0);
+      glTexCoord2d(Cos(k),Sin(k));
+      glVertex3f(Cos(k),Sin(k),0.5);
     }
   glEnd();
-  //Disable blending
-  glDisable(GL_BLEND);
+
+  //  Undo transformations
+  glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
+}
+
+/*
+ *  Draw landing gear
+ *     at (x,y,z)
+ *     h is height going down from <x,y,z>
+ *     s is the scale
+ */
+void drawLandingGear(double x,double y,double z, double h){
+  glPushMatrix();
+  //  Offset
+  glTranslated(x,y,z);
   
+  planeTire(0,0-h,0+0.5,1);
+  glLineWidth(3);
+  glColor3d(0.5,0.5,0.5);
+  glBegin(GL_LINES);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0-h, 0);
+  glEnd();
+  glLineWidth(1);
+  planeTire(0,0-h,0-0.5,1);
+
   //  Undo transformations
   glPopMatrix();
 }
-
-void drawHangar(double x, double y, double z, double r){
-  //  Save transformation
-  glPushMatrix();
-  glScaled(r,r,r);
-  glTranslated(x-25,y,z-17.5);
-
-  hangarFloorSquare(7.5,7.5);
-  hangarFloorSquare(7.5,27.5);
-  hangarFloorSquare(42.5,7.5);
-  hangarFloorSquare(42.5,27.5);
-  hangarFloor(0,0);
-  hangarFloorRectangle(21,6);
-  hangarFloorRectangle(29,6);
-  hangarFloorRectangle(21,29);
-  hangarFloorRectangle(29,29);
-  centerRect(20,17.5);
-  centerRect(30,17.5);
-  hangarLengthWall(25,0,0);
-  hangarLengthWall(25,0,35);
-  hangarWidthWall(0, 0, 17.5);
-  hangarWidthWall(50, 0, 17.5);
-  hangarRoof(25,10,0,1,0);
-
-  //  Undo transofrmations
-  glPopMatrix();
-}
-

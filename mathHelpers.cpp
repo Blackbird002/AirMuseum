@@ -19,7 +19,7 @@ void findNormalVector(double x1, double y1, double z1, double x2, double y2, dou
 }
 
 /*
- *  Draw vertex in polar coordinates with normal
+ *  Draw vertex in polar coordinates with normal and texture
  */
 void Vertex(int th,int ph)
 {

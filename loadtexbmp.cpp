@@ -31,7 +31,7 @@ unsigned int LoadTexBMP(const char* file)
    unsigned char* image;      // Image data
    unsigned int   off;        // Image offset
    unsigned int   k;          // Counter
-   int            max;        // Maximum texture dimensions
+   GLint            max;        // Maximum texture dimensions
 
    //  Open file
    f = fopen(file,"rb");
@@ -56,8 +56,8 @@ unsigned int LoadTexBMP(const char* file)
    }
    //  Check image parameters
    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max);
-   if (dx<1 || dx>max) Fatal("%s image width %d out of range 1-%d\n",file,dx,max);
-   if (dy<1 || dy>max) Fatal("%s image height %d out of range 1-%d\n",file,dy,max);
+   if (dx<1 || dx>(unsigned int)max) Fatal("%s image width %d out of range 1-%d\n",file,dx,max);
+   if (dy<1 || dy>(unsigned int)max) Fatal("%s image height %d out of range 1-%d\n",file,dy,max);
    if (nbp!=1)  Fatal("%s bit planes is not 1: %d\n",file,nbp);
    if (bpp!=24) Fatal("%s bits per pixel is not 24: %d\n",file,bpp);
    if (k!=0)    Fatal("%s compressed files not supported\n",file);
