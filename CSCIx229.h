@@ -43,17 +43,11 @@ void hangarFloorSquare(double x, double z);
 void hangarFloor(double x, double z);
 void hangarFloorRectangle(double x, double z);
 int  LoadOBJ(const char* file);
-void hangarLengthWall(double x, double y, double z);
-void drawHangar(double x, double y, double z, double r);
-void hangarRoof(double x,double y,double z,double r, double th);
-void hangarWidthWall(double x, double y, double z);
-void centerRect(double x, double z);
 void planeTire(double x,double y,double z,double r);
-void drawLandingGear(double x,double y,double z, double h);
+void drawLandingGear(double x,double y,double z, double h, double s);
 void skyboxCube(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th, float emission, float shiny, unsigned int texture[]);
-
 
 #ifdef __cplusplus
 }

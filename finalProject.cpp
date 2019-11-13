@@ -3,12 +3,13 @@
 #include "CSCIx229.h"
 #include "Camera.cpp"
 #include "Hangar.cpp"
+#include "XB70Bomber.cpp"
+#include "FighterJet.cpp"
 #include <iostream>
+
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
-
-
 int currentScene = 1;
 bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
@@ -46,31 +47,19 @@ double previousMouseX;
 
 Camera* camera;
 Hangar* hangar;
+XB70Bomber* bomber;
+FighterJet* myJet;
 
 // ----------------------------------------------------------
 // Function Prototypes
 // ----------------------------------------------------------
 void display();
 void reshape(int,int);
-void idle();
 void init();
 void mouseCallback(GLFWwindow *window, double x, double y);
 void key(GLFWwindow* window,int key,int scancode,int action,int mods);
 void error(int error, const char* text);
-static void FighterJet(double x,double y,double z,
-                       double dx,double dy,double dz,
-                       double ux,double uy, double uz, double scale, double thx, double thz);
-static void XB70Bomber(double x,double y,double z,
-                       double dx,double dy,double dz,
-                       double ux,double uy, double uz, double scale, double thx, double thz);
 void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
-/*
- * GLFW errors
- */
-void error(int error, const char* text)
-{
-    fprintf(stderr,"Error: %s\n",text);
-}
 
 // ----------------------------------------------------------
 // key() Callback function
@@ -117,6 +106,15 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
   Project(fov, asp, camera->dim, projectionMode);
 }
 
+/*
+ * GLFW errors
+ */
+void error(int error, const char* text)
+{
+  fprintf(stderr,"Error: %s\n",text);
+}
+
+
 void mouseCallback(GLFWwindow *window, double x, double y)
 {
   double deltaY = previousMouseY - y;
@@ -140,815 +138,6 @@ void mouseCallback(GLFWwindow *window, double x, double y)
   // Reproject
   Project(fov, asp, camera->dim, projectionMode);
 }	
-
-// ----------------------------------------------------------
-//  FighterJet
-// ----------------------------------------------------------
-
-/*
- *  Draw solid fighter jet
- *    front nose at (x,y,z)
- *    nose points towards (dx,dy,dz)
- *    UP vector (ux,uy,uz) 
- *    Rotation about X - roll (thx)
- *    Rotation about Z - pitch (thz) 
- */
-static void FighterJet(double x,double y,double z,
-                       double dx,double dy,double dz,
-                       double ux,double uy, double uz, double scale, double thx, double thz)
-{
-  //-20
-  // Dimensions used to size airplane
-  int mode = 0;
-  const double wid = 1;   //The "width of the plane's "Fuselage"
-  const double shipBowXfront = 0;    //X of front nose
-  const double shipBowXend = -4;     //X of end nose
-  const double shipSternX = -20;    //X end of ship
-  const double cockpitX = -4;        //X center of cockpit
-  const double cockpitY = 0.70;
-
-  const double wingXfront = -8;
-  const double wingXend = -19;
-  const double wingXfrontFold = -17;
-  const double wingZ = 10;
-
-  const double canardXend = wingXfront;
-  const double canardXfront = shipBowXend;
-  const double canardZ = 4;
-
-  const double wingLinefrontX = -16;
-  const double wingLineXend = -20;
-  const double wingLineZ = wingZ;
-  
-  //  Unit vector in direction of flght
-  double D0 = sqrt(dx*dx+dy*dy+dz*dz);
-  double X0 = dx/D0;
-  double Y0 = dy/D0;
-  double Z0 = dz/D0;
-
-  //  Unit vector in "up" direction
-  double D1 = sqrt(ux*ux+uy*uy+uz*uz);
-  double X1 = ux/D1;
-  double Y1 = uy/D1;
-  double Z1 = uz/D1;
-
-  //  Cross product gives the third vector
-  double X2 = Y0*Z1-Y1*Z0;
-  double Y2 = Z0*X1-Z1*X0;
-  double Z2 = X0*Y1-X1*Y0;
-
-  //  Rotation matrix
-  double mat[16];
-  mat[0] = X0;   mat[4] = X1;   mat[ 8] = X2;   mat[12] = 0;
-  mat[1] = Y0;   mat[5] = Y1;   mat[ 9] = Y2;   mat[13] = 0;
-  mat[2] = Z0;   mat[6] = Z1;   mat[10] = Z2;   mat[14] = 0;
-  mat[3] =  0;   mat[7] =  0;   mat[11] =  0;   mat[15] = 1;
-
-  //For normal vector calculations
-  double aX, aY, aZ;
-  double bX, bY, bZ;
-  double nX, nY, nZ;
-
-  //  Set specular color to white
-  float white[] = {1,1,1,1};
-  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
-  glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
-
-  //  Enable textures
-  glEnable(GL_TEXTURE_2D);
-  glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
-
-  //  Save current transforms
-  glPushMatrix();
-  //  Offset, scale and rotate
-  glTranslated(x,y,z);
-  glMultMatrixd(mat);
-  glRotated(thx,1,0,0);
-  glRotated(thz,0,0,1);
-  glScaled(scale,scale,scale);
-
-  // ----------------------------------------------------------
-  // Front nose (4 sided)
-  // ---------------------------------------------------------
-  glColor3f(0.8,0.8,0.8);
-  findDispVector(shipBowXend,wid,wid,shipBowXfront,0.0,0.0,&aX,&aY,&aZ);
-  findDispVector(shipBowXend,wid,wid,shipBowXend,-wid,wid,&bX,&bY,&bZ);
-  findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ);
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-
-  //left triangle (-Z)
-  glBegin(GL_TRIANGLES);
-    glNormal3d(nX,nY,-nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipBowXfront, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipBowXend, wid, wid);
-    glTexCoord2f(0,0);glVertex3d(shipBowXend,-wid, wid);
-
-    //right triangle (Z+)
-    glNormal3d(nX,nY,nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipBowXfront, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipBowXend, wid,-wid);
-    glTexCoord2f(0,0);glVertex3d(shipBowXend,-wid,-wid);
-
-    findDispVector(shipBowXend,wid,wid,shipBowXfront,0.0,0.0,&aX,&aY,&aZ);
-    findDispVector(shipBowXend,wid,wid,shipBowXend,wid,-wid,&bX,&bY,&bZ);
-    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ);
-
-    //Top triangle
-    glNormal3d(nX,nY,nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipBowXfront, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipBowXend, wid, wid);
-    glTexCoord2f(0,0);glVertex3d(shipBowXend, wid,-wid);
-
-    //Bottom triangle
-    glNormal3d(nX,-nY,nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipBowXfront, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipBowXend,-wid, wid);
-    glTexCoord2f(0,0);glVertex3d(shipBowXend,-wid,-wid);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Front tip
-  // ---------------------------------------------------------
-  glLineWidth(2);
-  glBegin(GL_LINES);
-    glNormal3d(1,0,0);
-    glColor3f(1, 0, 0); 
-    glVertex3f(shipBowXfront, 0, 0);
-    glVertex3f(shipBowXfront+2, 0, 0);
-  glEnd();
-  glLineWidth(1);
-
-  // ----------------------------------------------------------
-  // Fuselage
-  // ---------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[0]);
-  glColor3f(1,1,1);
-  glBegin(GL_QUADS);
-    glNormal3d(0,0,1);
-    glTexCoord2f(3,0.5);glVertex3d(shipBowXend, wid, wid);
-    glTexCoord2f(3,0);glVertex3d(shipBowXend,-wid, wid);
-    glTexCoord2f(0,0);glVertex3d(shipSternX,-wid, wid);
-    glTexCoord2f(0,0.5);glVertex3d(shipSternX, wid, wid);
-
-    glNormal3d(0,0,-1);
-    glTexCoord2f(3,0.5);glVertex3d(shipBowXend, wid,-wid);
-    glTexCoord2f(3,0);glVertex3d(shipBowXend,-wid,-wid);
-    glTexCoord2f(0,0);glVertex3d(shipSternX,-wid,-wid);
-    glTexCoord2f(0,0.5);glVertex3d(shipSternX, wid,-wid);
-
-    glNormal3d(0,1,0);
-    glTexCoord2f(3,0.5);glVertex3d(shipBowXend, wid, wid);
-    glTexCoord2f(3,0);glVertex3d(shipBowXend, wid,-wid);
-    glTexCoord2f(0,0);glVertex3d(shipSternX, wid,-wid);
-    glTexCoord2f(0,0.5);glVertex3d(shipSternX, wid, wid);
-
-    glNormal3d(0,-1,0);
-    glTexCoord2f(3,0.5);glVertex3d(shipBowXend,-wid, wid);
-    glTexCoord2f(3,0);glVertex3d(shipBowXend,-wid,-wid);
-    glTexCoord2f(0,0);glVertex3d(shipSternX,-wid,-wid);
-    glTexCoord2f(0,0.5);glVertex3d(shipSternX,-wid, wid);
-
-    glNormal3d(-1,0,0);
-    glTexCoord2f(3,0.5);glVertex3d(shipSternX,-wid, wid);
-    glTexCoord2f(3,0);glVertex3d(shipSternX, wid, wid);
-    glTexCoord2f(0,0);glVertex3d(shipSternX, wid,-wid);
-    glTexCoord2f(0,0.5);glVertex3d(shipSternX,-wid,-wid);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Cockpit
-  // ---------------------------------------------------------
-  glColor3f(1,1,1);
-  glBindTexture(GL_TEXTURE_2D,texture[3]);
-  Sphere(cockpitX,cockpitY,0,0.9, emission, shiny);
-
-  // ----------------------------------------------------------
-  // Canards
-  // ---------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_TRIANGLES);
-    //Right Canard (upper)
-    glNormal3d(0,1,0);
-    glTexCoord2f(0,1);glVertex3d(canardXend, 0, wid);
-    glTexCoord2f(1,0);glVertex3d(canardXend, 0, canardZ);
-    glTexCoord2f(0,0);glVertex3d(canardXfront, 0, wid);
-
-    //Right Canard (lower)
-    glNormal3d(0,-1,0);
-    glTexCoord2f(0,1);glVertex3d(canardXend, -0.001, wid);
-    glTexCoord2f(1,0);glVertex3d(canardXend, -0.001, canardZ);
-    glTexCoord2f(0,0);glVertex3d(canardXfront, -0.001, wid);
-
-    //Left Canard (upper)
-    glNormal3d(0,1,0);
-    glTexCoord2f(1,1);glVertex3d(canardXend, 0, -wid);
-    glTexCoord2f(0,0);glVertex3d(canardXend, 0, -canardZ);
-    glTexCoord2f(0,1);glVertex3d(canardXfront, 0, -wid);
-
-    //Left Canard (lower)
-    glNormal3d(0,-1,0);
-    glTexCoord2f(1,1);glVertex3d(canardXend, -0.001, -wid);
-    glTexCoord2f(0,0);glVertex3d(canardXend, -0.001, -canardZ);
-    glTexCoord2f(0,1);glVertex3d(canardXfront, -0.001, -wid);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Wing tips
-  // ---------------------------------------------------------
-  glLineWidth(2);
-  glColor3f(1,0,0);
-  glBegin(GL_LINES);
-    //Right wing line
-    glNormal3d(0,1,0);
-    glVertex3d(wingLineXend, -wid, wingLineZ);
-    glVertex3d(wingLinefrontX, -wid, wingLineZ);
-
-    glNormal3d(0,-1,0);
-    glVertex3d(wingLineXend, -wid-0.01, wingLineZ);
-    glVertex3d(wingLinefrontX, -wid-0.01, wingLineZ);
-
-    //Left wing line
-    glNormal3d(0,1,0);
-    glVertex3d(wingLineXend, -wid, -wingLineZ);
-    glVertex3d(wingLinefrontX, -wid, -wingLineZ);
-
-    glNormal3d(0,-1,0);
-    glVertex3d(wingLineXend, -wid-0.01, -wingLineZ);
-    glVertex3d(wingLinefrontX, -wid-0.01, -wingLineZ);
-  glEnd();
-  glLineWidth(1);
- 
-
-  // ----------------------------------------------------------
-  // Vertical tail
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-
-  //  Vertical tail (Z+)
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_POLYGON);
-  glNormal3d(0,0,1);
-    glTexCoord2f(0,1);glVertex3d(shipSternX, 6.0, 0.001);
-    glTexCoord2f(0,0);glVertex3d(shipSternX, 1.0, 0.001);
-    glTexCoord2f(1,0);glVertex3d(wingXend+4, 1.0, 0.001);
-  glEnd();
-
-  //  Vertical tail (-Z)
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,0,-1);
-    glTexCoord2f(0,1);glVertex3d(shipSternX, 6.0, 0.0);
-    glTexCoord2f(0,0);glVertex3d(shipSternX, 1.0, 0.0);
-    glTexCoord2f(1,0);glVertex3d(wingXend+4, 1.0, 0.0);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Wings
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-
-  glColor3f(0.8,0.8,0.8);
-  //Right wing (upper)
-  glBegin(GL_POLYGON);
-    glNormal3d(0,1,0);
-    glTexCoord2f(0,0);glVertex3d(wingXend, -wid, wid);
-    glTexCoord2f(0,2);glVertex3d(wingXend, -wid, wingZ);
-    glTexCoord2f(2,2);glVertex3d(wingXfrontFold, -wid, wingZ);
-    glTexCoord2f(3,0);glVertex3d(wingXfront, -wid, wid);
-  glEnd();
-
-  //Right wing (lower)
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(0,0);glVertex3d(wingXend, -wid-0.01, wid);
-    glTexCoord2f(0,2);glVertex3d(wingXend, -wid-0.01, wingZ);
-    glTexCoord2f(2,2);glVertex3d(wingXfrontFold-0.01, -wid, wingZ);
-    glTexCoord2f(3,0);glVertex3d(wingXfront, -wid-0.01, wid);
-  glEnd();
-
-  //Left wing (upper)
-  glBegin(GL_POLYGON);
-    glNormal3d(0,1,0);
-    glTexCoord2f(0,0);glVertex3d(wingXend, -wid, -wid);
-    glTexCoord2f(0,2);glVertex3d(wingXend, -wid, -wingZ);
-    glTexCoord2f(2,2);glVertex3d(wingXfrontFold, -wid, -wingZ);
-    glTexCoord2f(3,0);glVertex3d(wingXfront, -wid, -wid);
-  glEnd();
-
-  //Left wing (lower)
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(0,0);glVertex3d(wingXend, -wid-0.01, -wid);
-    glTexCoord2f(0,2);glVertex3d(wingXend, -wid-0.01, -wingZ);
-    glTexCoord2f(2,2);glVertex3d(wingXfrontFold, -wid-0.01, -wingZ);
-    glTexCoord2f(3,0);glVertex3d(wingXfront, -wid-0.01, -wid);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Rear engine
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[4]);
-  engineSphere(shipSternX,0,0,1,-90, emission, shiny);
-
-  glBindTexture(GL_TEXTURE_2D,texture[11]);
-  disk(shipSternX-1-0.01,0,0,1,90);
-
-  //  Undo transformations
-  glPopMatrix();
-}
-
-// ----------------------------------------------------------
-//  XB70 Bomber jet
-// ----------------------------------------------------------
-
-/*
- *  Draw XB70 Bomber jet
- *    front nose at (x,y,z)
- *    nose points towards (dx,dy,dz)
- *    UP vector (ux,uy,uz) 
- *    scale of the plane xyz (scale)
- *    Rotation about X - roll (thx)
- *    Rotation about Z - pitch (thz) 
- */
-void XB70Bomber(double x,double y,double z,
-                double dx,double dy,double dz,
-                double ux,double uy, double uz, double scale, double thx, double thz)
-{
-  int mode = 0;
-  const double shipFrontNoseX = 1.0;
-  const double shipRearNoseX = -9.0;
-  const double shipWidth = 2.0;
-  const double cockpitLocX = shipRearNoseX - shipWidth + 2.25;
-  const double shipRearX = -60.0;
-  const double wingsFrontX = -20.0;
-  const double wingsRearX = -60.0;
-  const double shipFuselageHeight = 2.0;
-  const double frontFuselageXEnd = wingsFrontX;
-
-  const double foldingWingZ = 15;
-  const double foldingWingXfront = -50;
-  const double foldingWingYHeight = 5;
-
-  const double verticalsZ = 10;
-  const double verticalsHeight = 7;
-  const double verticalsXfront = -50;
-
-  const double canardFrontX = shipRearNoseX - 2;
-  const double canardRearX = canardFrontX - 6;
-  const double canardZ = 5.5;
-
-  //Inlets
-  const double inletMiddleForntX = wingsFrontX - 3;
-  const double inletMiddleRearX = shipRearX;
-  const double inletY = -shipFuselageHeight - 1.5;
-  const double inletSidefrontX = wingsFrontX - 6;
-
-  //  Unit vector in direction of flght
-  double D0 = sqrt(dx*dx+dy*dy+dz*dz);
-  double X0 = dx/D0;
-  double Y0 = dy/D0;
-  double Z0 = dz/D0;
-
-  //  Unit vector in "up" direction
-  double D1 = sqrt(ux*ux+uy*uy+uz*uz);
-  double X1 = ux/D1;
-  double Y1 = uy/D1;
-  double Z1 = uz/D1;
-
-  //  Cross product gives the third vector
-  double X2 = Y0*Z1-Y1*Z0;
-  double Y2 = Z0*X1-Z1*X0;
-  double Z2 = X0*Y1-X1*Y0;
-
-  //  Rotation matrix
-  double mat[16];
-  mat[0] = X0;   mat[4] = X1;   mat[ 8] = X2;   mat[12] = 0;
-  mat[1] = Y0;   mat[5] = Y1;   mat[ 9] = Y2;   mat[13] = 0;
-  mat[2] = Z0;   mat[6] = Z1;   mat[10] = Z2;   mat[14] = 0;
-  mat[3] =  0;   mat[7] =  0;   mat[11] =  0;   mat[15] = 1;
-
-  //  Save current transforms
-  glPushMatrix();
-  //  Offset, scale and rotate
-  glTranslated(x+35*scale,y,z);
-  glMultMatrixd(mat);
-  glRotated(thx,1,0,0);
-  glRotated(thz,0,0,1);
-  glScaled(scale,scale,scale);
-
-  //For normal vector calculations
-  double aX, aY, aZ;
-  double bX, bY, bZ;
-  double nX, nY, nZ;
-
-  //  Set specular color to white
-  float white[] = {1,1,1,1};
-  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
-  glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
-
-  //  Enable textures
-  glEnable(GL_TEXTURE_2D);
-  glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
-  //glBindTexture(GL_TEXTURE_2D,texture[0]);
-
-  // ----------------------------------------------------------
-  // Cockpit
-  // ----------------------------------------------------------
-  glColor3f(1,1,1);
-  glBindTexture(GL_TEXTURE_2D,texture[3]);
-  Sphere(cockpitLocX,shipFuselageHeight - 0.8,0,shipWidth - 0.25, emission, shiny);
-
-  // ----------------------------------------------------------
-  // Nose
-  // ----------------------------------------------------------
-
-  //  Front Nose (4 sided)
-  glColor3f(0.7,0.7,0.7);
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-    
-    //Right side nose
-  glBegin(GL_TRIANGLES);
-    findDispVector(shipRearNoseX, shipFuselageHeight, shipWidth, shipFrontNoseX, 0.0,0.0, &aX,&aY,&aZ);
-    findDispVector(shipRearNoseX, shipFuselageHeight, shipWidth, shipRearNoseX, -shipFuselageHeight, shipWidth, &bX, &bY, &bZ);
-    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ);
-    glNormal3d(nX,nY,-nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipFrontNoseX, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipRearNoseX, shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,0);glVertex3d(shipRearNoseX,-shipFuselageHeight, shipWidth);
-
-    //Right side nose
-    glNormal3d(nX,nY,nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipFrontNoseX, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipRearNoseX, shipFuselageHeight,-shipWidth);
-    glTexCoord2f(0,0);glVertex3d(shipRearNoseX,-shipFuselageHeight,-shipWidth);
-
-    //Top side nose
-    findDispVector(shipRearNoseX, shipFuselageHeight, shipWidth, shipFrontNoseX, 0.0,0.0, &aX,&aY,&aZ);
-    findDispVector(shipRearNoseX, shipFuselageHeight, shipWidth, shipRearNoseX, shipFuselageHeight, -shipWidth, &bX,&bY,&bZ);
-    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ);
-
-    glNormal3d(nX,nY,nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipFrontNoseX, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipRearNoseX, shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,0);glVertex3d(shipRearNoseX, shipFuselageHeight,-shipWidth);
-
-    //Bottom side nose3
-    glNormal3d(nX,-nY,nZ);
-    glTexCoord2f(0.5,0.5);glVertex3d(shipFrontNoseX, 0.0, 0.0);
-    glTexCoord2f(0,0.5);glVertex3d(shipRearNoseX,-shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,0);glVertex3d(shipRearNoseX,-shipFuselageHeight,-shipWidth);
-  glEnd();
-  
-  // ----------------------------------------------------------
-  // Fuselage
-  // ----------------------------------------------------------
-
-  //  Fuselage (front section)
-  glBindTexture(GL_TEXTURE_2D,texture[1]);
-  glBegin(GL_QUADS);
-    glColor3f(1,1,1);
-    //Right side
-    glNormal3d(0,0,1);
-    glTexCoord2f(1,0.5); glVertex3d(shipRearNoseX, shipFuselageHeight, shipWidth);
-    glTexCoord2f(1,0);glVertex3d(shipRearNoseX,-shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,0);glVertex3d(frontFuselageXEnd,-shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,0.5);glVertex3d(frontFuselageXEnd, shipFuselageHeight, shipWidth);
-  glEnd();
-
-    //Left side
-  glBegin(GL_QUADS);
-    glNormal3d(0,0,-1);
-    glTexCoord2f(1,0.5);glVertex3d(shipRearNoseX, shipFuselageHeight,-shipWidth);
-    glTexCoord2f(1,0);glVertex3d(shipRearNoseX,-shipFuselageHeight,-shipWidth);
-    glTexCoord2f(0,0);glVertex3d(frontFuselageXEnd,-shipFuselageHeight,-shipWidth);
-    glTexCoord2f(0,0.5);glVertex3d(frontFuselageXEnd, shipFuselageHeight,-shipWidth);
-  glEnd();
-
-  glBindTexture(GL_TEXTURE_2D,texture[0]);
-    //Top side
-  glBegin(GL_QUADS);
-    glNormal3d(0,1,0);
-    glTexCoord2f(1,1);glVertex3d(shipRearNoseX, shipFuselageHeight, -shipWidth);
-    glTexCoord2f(0,1);glVertex3d(frontFuselageXEnd, shipFuselageHeight, -shipWidth);
-    glTexCoord2f(0,0);glVertex3d(frontFuselageXEnd, shipFuselageHeight, shipWidth);
-    glTexCoord2f(1,0);glVertex3d(shipRearNoseX, shipFuselageHeight, shipWidth);
-  glEnd();
-    
-  glBegin(GL_QUADS);
-    //Bottom side
-    glNormal3d(0,-1,0);
-    glTexCoord2f(0,0);glVertex3d(shipRearNoseX,-shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,1);glVertex3d(shipRearNoseX,-shipFuselageHeight,-shipWidth);
-    glTexCoord2f(5,1);glVertex3d(shipRearX,-shipFuselageHeight,-shipWidth);
-    glTexCoord2f(5,0);glVertex3d(shipRearX,-shipFuselageHeight, shipWidth);
-  glEnd();
-
-  //Calculation of normal for second fuselage section
-  
-  findDispVector(frontFuselageXEnd, shipFuselageHeight, -shipWidth, shipRearX, -shipFuselageHeight, -shipWidth, &aX, &aY, &aZ);
-  findDispVector(shipRearX, -shipFuselageHeight, -shipWidth, shipRearX, -shipFuselageHeight, shipWidth, &bX, &bY, &bZ);
-  findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ);
-
-
-  //Rear fuselage section:
-  glBegin(GL_QUADS);
-    //Second section top side (biggest part)
-    glNormal3d(nX,nY,nZ);
-    glTexCoord2f(4,0);glVertex3d(frontFuselageXEnd, shipFuselageHeight, shipWidth);
-    glTexCoord2f(4,1);glVertex3d(frontFuselageXEnd, shipFuselageHeight,-shipWidth);
-    glTexCoord2f(0,1);glVertex3d(shipRearX, -shipFuselageHeight,-shipWidth);
-    glTexCoord2f(0,0);glVertex3d(shipRearX, -shipFuselageHeight, shipWidth);
-  glEnd();
-
-  //Rear fuselage sides
-  glBindTexture(GL_TEXTURE_2D,texture[0]);
-  glBegin(GL_POLYGON);
-    //Right side
-    glNormal3d(0,0,1);
-    glTexCoord2f(5,1);glVertex3d(frontFuselageXEnd, shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,0);glVertex3d(shipRearX, -shipFuselageHeight, shipWidth);
-    glTexCoord2f(5,0);glVertex3d(frontFuselageXEnd, -shipFuselageHeight, shipWidth);
-  glEnd();
-
-  glBegin(GL_POLYGON);
-    //Left side
-    glNormal3d(0,0,-1);
-    glTexCoord2f(0,1);glVertex3d(frontFuselageXEnd, shipFuselageHeight, -shipWidth);
-    glTexCoord2f(0,0);glVertex3d(frontFuselageXEnd, -shipFuselageHeight, -shipWidth);
-    glTexCoord2f(5,0);glVertex3d(shipRearX, -shipFuselageHeight, -shipWidth);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Front tip
-  // ---------------------------------------------------------
-  glLineWidth(2);
-  glBegin(GL_LINES);
-    glNormal3d(1,0,0);
-    glColor3f(1, 0, 0); 
-    glVertex3f(shipFrontNoseX, 0, 0);
-    glVertex3f(shipFrontNoseX+2, 0, 0);
-  glEnd();
-  glLineWidth(1);
-
-  // ----------------------------------------------------------
-  // Wings
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-  //Right wing (bottom portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight, shipWidth);
-    glTexCoord2f(0,2);glVertex3d(wingsRearX, -shipFuselageHeight, foldingWingZ);
-    glTexCoord2f(2,2);glVertex3d(foldingWingXfront, -shipFuselageHeight, foldingWingZ);
-    glTexCoord2f(3,0);glVertex3d(wingsFrontX, -shipFuselageHeight, shipWidth);
-  glEnd();
-
-   //Right (upper portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,1,0);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight+0.01, shipWidth);
-    glTexCoord2f(0,2);glVertex3d(wingsRearX, -shipFuselageHeight+0.01, foldingWingZ);
-    glTexCoord2f(2,2);glVertex3d(foldingWingXfront, -shipFuselageHeight+0.01, foldingWingZ);
-    glTexCoord2f(3,0);glVertex3d(wingsFrontX, -shipFuselageHeight+0.01, shipWidth);
-  glEnd();
-
-  //Left wing (bottom portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight, -shipWidth);
-    glTexCoord2f(0,2);glVertex3d(wingsRearX, -shipFuselageHeight, -foldingWingZ);
-    glTexCoord2f(2,2);glVertex3d(foldingWingXfront, -shipFuselageHeight, -foldingWingZ);
-    glTexCoord2f(3,0);glVertex3d(wingsFrontX, -shipFuselageHeight, -shipWidth);
-  glEnd();
-
-  //Left wing (upper portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,1,0);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight+0.01, -shipWidth);
-    glTexCoord2f(0,2);glVertex3d(wingsRearX, -shipFuselageHeight+0.01, -foldingWingZ);
-    glTexCoord2f(2,2);glVertex3d(foldingWingXfront, -shipFuselageHeight+0.01, -foldingWingZ);
-    glTexCoord2f(3,0);glVertex3d(wingsFrontX, -shipFuselageHeight+0.01, -shipWidth);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Folding Wings
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[0]);
-
-  findDispVector(foldingWingXfront, -shipFuselageHeight, foldingWingZ, wingsRearX, -shipFuselageHeight, foldingWingZ, &aX,&aY,&aZ);
-  findDispVector(wingsRearX, -shipFuselageHeight, foldingWingZ, wingsRearX, -foldingWingYHeight-shipFuselageHeight, foldingWingZ+2, &bX,&bY,&bZ);
-  findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ);
-
-  //Right folding wing (upper portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(nX,nY,nZ);
-    glTexCoord2f(0,0.5);glVertex3d(wingsRearX, -shipFuselageHeight, foldingWingZ);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -foldingWingYHeight-shipFuselageHeight, foldingWingZ+3);
-    glTexCoord2f(1,0);glVertex3d(foldingWingXfront, -shipFuselageHeight, foldingWingZ);
-  glEnd();
-
-  //Right folding wing (bottom portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(-nX,-nY,-nZ);
-    glTexCoord2f(0,0.5);glVertex3d(wingsRearX, -shipFuselageHeight, foldingWingZ);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -foldingWingYHeight-shipFuselageHeight-0.01, foldingWingZ+3);
-    glTexCoord2f(1,0);glVertex3d(foldingWingXfront, -shipFuselageHeight, foldingWingZ);
-  glEnd();
-
-  //Left folding wing (upper portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(nX,nY,-nZ);
-    glTexCoord2f(0,0.5);glVertex3d(wingsRearX, -shipFuselageHeight, -foldingWingZ);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -foldingWingYHeight-shipFuselageHeight, -foldingWingZ-3);
-    glTexCoord2f(1,0);glVertex3d(foldingWingXfront, -shipFuselageHeight, -foldingWingZ);
-  glEnd();
-
-  //Left folding wing (bottom portion)
-  glColor3f(1,1,1);
-  glBegin(GL_POLYGON);
-    glNormal3d(nX,-nY,nZ);
-    glTexCoord2f(0,0.5);glVertex3d(wingsRearX, -shipFuselageHeight, -foldingWingZ);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -foldingWingYHeight-shipFuselageHeight-0.01, -foldingWingZ-3);
-    glTexCoord2f(1,0);glVertex3d(foldingWingXfront, -shipFuselageHeight, -foldingWingZ);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Vertical stabilizers
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[0]);
-  //Righ verical (Z+)
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,0,1);
-    glTexCoord2f(0,1);glVertex3d(wingsRearX, verticalsHeight, verticalsZ);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight,verticalsZ);
-    glTexCoord2f(1,0);glVertex3d(verticalsXfront, -shipFuselageHeight, verticalsZ);
-  glEnd();
-
-  //Righ verical (-Z)
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,0,-1);
-    glTexCoord2f(0,1);glVertex3d(wingsRearX, verticalsHeight, verticalsZ-0.01);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight,verticalsZ-0.01);
-    glTexCoord2f(1,0);glVertex3d(verticalsXfront, -shipFuselageHeight, verticalsZ-0.01);
-  glEnd();
-
-  //Left verical (Z+)
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,0,1);
-    glTexCoord2f(0,1);glVertex3d(wingsRearX, verticalsHeight, -verticalsZ);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight,-verticalsZ);
-    glTexCoord2f(1,0);glVertex3d(verticalsXfront, -shipFuselageHeight, -verticalsZ);
-  glEnd();
-
-  //Left verical (-Z)
-  glColor3f(0.8,0.8,0.8);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,0,-1);
-    glTexCoord2f(0,1);glVertex3d(wingsRearX, verticalsHeight, -verticalsZ-0.01);
-    glTexCoord2f(0,0);glVertex3d(wingsRearX, -shipFuselageHeight,-verticalsZ-0.01);
-    glTexCoord2f(1,0);glVertex3d(verticalsXfront, -shipFuselageHeight, -verticalsZ-0.01);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Canards
-  // ----------------------------------------------------------
-
-  //Right Canard (bottom portion)
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-  glColor3f(0.75,0.75,0.75);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(1,0);glVertex3d(canardRearX,0,shipWidth);
-    glTexCoord2f(0.8,0.5);glVertex3d(canardRearX+1,0,canardZ);
-    glTexCoord2f(0.3,0.5);glVertex3d(canardRearX+4,0,canardZ);
-    glTexCoord2f(0,0);glVertex3d(canardFrontX,0,shipWidth);
-  glEnd();
-
-  //Right Canard (upper portion)
-  glBegin(GL_POLYGON);
-    glNormal3d(0,1,0);
-    glTexCoord2f(1,0);glVertex3d(canardRearX,0+0.01,shipWidth);
-    glTexCoord2f(0.8,0.5);glVertex3d(canardRearX+1,0+0.01,canardZ);
-    glTexCoord2f(0.3,0.5);glVertex3d(canardRearX+4,0+0.01,canardZ);
-    glTexCoord2f(0,0);glVertex3d(canardFrontX,0+0.01,shipWidth);  //Frontmost section
-  glEnd();
-
-  //Left Canard (bottom portion)
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(1,0);glVertex3d(canardRearX,0,-shipWidth);
-    glTexCoord2f(0.8,0.5);glVertex3d(canardRearX+1,0,-canardZ);
-    glTexCoord2f(0.3,0.5);glVertex3d(canardRearX+4,0,-canardZ);
-    glTexCoord2f(0,0);glVertex3d(canardFrontX,0,-shipWidth);
-  glEnd();
-
-  //Left Canard (upper portion)
-  glBegin(GL_POLYGON);
-    glTexCoord2f(1,0);glNormal3d(0,1,0);
-    glVertex3d(canardRearX,0+0.01,-shipWidth);
-    glTexCoord2f(0.8,0.5);glVertex3d(canardRearX+1,0+0.01,-canardZ);
-    glTexCoord2f(0.3,0.5);glVertex3d(canardRearX+4,0+0.01,-canardZ);
-    glTexCoord2f(0,0);glVertex3d(canardFrontX,0+0.01,-shipWidth);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Inlets
-  // ----------------------------------------------------------
-  glBindTexture(GL_TEXTURE_2D,texture[2]);
-  //Inlet middle, left and right side
-  glColor3f(1,1,1); //white
-  glBegin(GL_QUADS);
-    //Middle inlet
-    glTexCoord2f(3,0.2);glVertex3d(inletMiddleForntX,inletY,0);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, 0);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, 0);
-    glTexCoord2f(3,0);glVertex3d(inletMiddleForntX, -shipFuselageHeight,0);
-  glEnd();
-
-  glBindTexture(GL_TEXTURE_2D,texture[0]);
-    //Right inlet side
-  glBegin(GL_QUADS);
-    glNormal3d(0,0,1);
-    glTexCoord2f(3,0.2);glVertex3d(inletSidefrontX,inletY,shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, shipWidth);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, shipWidth);
-    glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, shipWidth);
-  glEnd();
-
-    //Right inlet side
-  glBegin(GL_QUADS);
-    glNormal3d(0,0,1);
-    glTexCoord2f(3,0.2);glVertex3d(inletSidefrontX,inletY,shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, shipWidth+5);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, shipWidth+5);
-    glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, shipWidth);
-  glEnd();
-
-    //Left inlet side
-  glBegin(GL_QUADS);
-    glNormal3d(0,0,-1);
-    glTexCoord2f(3,0.2);glVertex3d(inletSidefrontX,inletY,-shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, -shipWidth);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, -shipWidth);
-    glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, -shipWidth);
-  glEnd();
-
-  //Left inlet side outside
-  glBegin(GL_QUADS);
-    glNormal3d(0,0,-1);
-    glTexCoord2f(3,0.2);glVertex3d(inletSidefrontX,inletY,-shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, -shipWidth-5);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, -shipFuselageHeight, -shipWidth-5);
-    glTexCoord2f(3,0);glVertex3d(inletSidefrontX, -shipFuselageHeight, -shipWidth);
-  glEnd();
-
-  //Back inlet left bottom side
-  glColor3f(0.75,0.75,0.75);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(2.8,0.2);glVertex3f(inletSidefrontX, inletY, shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, shipWidth+5);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, inletY, 0);
-    glTexCoord2f(3,0);glVertex3d(inletMiddleForntX, inletY, 0);
-  glEnd();
-
-  //Back inlet right bottom side
-  glColor3f(0.75,0.75,0.75);
-  glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
-    glTexCoord2f(2.8,0.2);glVertex3f(inletSidefrontX, inletY, -shipWidth);
-    glTexCoord2f(0,0.2);glVertex3d(inletMiddleRearX, inletY, -shipWidth-5);
-    glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, inletY, 0);
-    glTexCoord2f(3,0);glVertex3d(inletMiddleForntX, inletY, 0);
-  glEnd();
-
-  // ----------------------------------------------------------
-  // Landing Gear
-  // ----------------------------------------------------------
-  drawLandingGear(frontFuselageXEnd+6,-shipWidth,0,5);
-  drawLandingGear(inletMiddleRearX+10,inletY,4,4);
-  drawLandingGear(inletMiddleRearX+10,inletY,-4,4);
-
-
-  //  Undo transformations
-  glPopMatrix();
-}
-
 
 // ----------------------------------------------------------
 // display() Callback function
@@ -1007,10 +196,13 @@ void display(GLFWwindow* window){
     drawAxisLabels();
   }
 
+  //What to draw
   skyboxCube(200,0,200,900,900,900,0, emission, shiny, texture);  
   hangar->drawHangar(25,0,17.5,15);
-  XB70Bomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0);
-
+  bomber->drawBomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0, true);
+  bomber->drawBomber(390,130,250, 1,0,1, 0,1,0, 2.5, 0, 15, false);
+  myJet->drawFighterJet(120,15,140,1,0,1,0,1,0,4,0,0);
+  
   //  Display parameters
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
@@ -1062,7 +254,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(30,15,40,300);
+  camera = new Camera(30,15,40,200);
 
   //  Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -1119,9 +311,10 @@ int main(int argc, char* argv[]){
   texture[9] = LoadTexBMP("Textures/bottom.bmp");
   texture[10] = LoadTexBMP("Textures/back.bmp");
 
-  //Afterburner texture from: http://www.lockonfiles.com/files/file/1967-gys-f-15c-inner-afterburner-texture/
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
   hangar = new Hangar();
+  bomber = new XB70Bomber();
+  myJet = new FighterJet();
 
   //  Event loop
   ErrCheck("init");
@@ -1135,7 +328,11 @@ int main(int argc, char* argv[]){
   //  Shut down GLFW
   glfwDestroyWindow(window);
   glfwTerminate();
+
   delete camera;
+  delete bomber;
+  delete hangar;
+  delete myJet;
 
   // ANSI C requires main to return int
   return 0;

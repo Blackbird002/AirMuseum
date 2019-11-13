@@ -351,10 +351,11 @@ void planeTire(double x,double y,double z, double r){
  *     h is height going down from <x,y,z>
  *     s is the scale
  */
-void drawLandingGear(double x,double y,double z, double h){
+void drawLandingGear(double x,double y,double z, double h, double s){
   glPushMatrix();
   //  Offset
   glTranslated(x,y,z);
+  glScaled(s,s,s);
   
   planeTire(0,0-h,0+0.5,1);
   glLineWidth(3);

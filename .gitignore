@@ -8,3 +8,5 @@ project.o
 finalProject.o
 loadtexbmp.o
 .vscode/settings.json
+XB70Bomber.o
+FighterJet.o

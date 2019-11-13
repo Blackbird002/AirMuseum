@@ -31,6 +31,8 @@ project.cpp.o: project.cpp CSCIx229.h
 drawLibrary.cpp.o: drawLibrary.cpp CSCIx229.h
 Hangar.cpp.o: Hangar.cpp CSCIx229.h
 Camera.cpp.o: Camera.cpp CSCIx229.h
+XB70Bomber.cpp.o: XB70Bomber.cpp CSCIx229.h
+FighterJet.cpp.o: FighterJet.o CSCIx229.h
 
 # Compile rules
 .c.o:
@@ -39,7 +41,7 @@ Camera.cpp.o: Camera.cpp CSCIx229.h
 	g++ -c $(CFLG) $<
 
 #  Link
-finalProject:finalProject.o fatal.o loadtexbmp.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o Hangar.o Camera.o
+finalProject:finalProject.o fatal.o loadtexbmp.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o Hangar.o Camera.o XB70Bomber.o FighterJet.o
 	g++ -O3 -o $@ $^ Camera.cpp Hangar.cpp  -lglfw -lGLU -lGL -lm 
 
 #  Clean

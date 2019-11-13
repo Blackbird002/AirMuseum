@@ -8,9 +8,13 @@ public:
     Hangar(){
         mode = 0;
         texture[0] = LoadTexBMP("Textures/HangarTextures/hangarFloor256.bmp");
+        texture[1] = LoadTexBMP("Textures/HangarTextures/redCarpet.bmp");
     }
 
     void drawHangar(double x, double y, double z, double r){
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
+
         //  Save transformation
         glPushMatrix();
         glScaled(r,r,r);
@@ -95,16 +99,16 @@ private:
     }
 
     void centerRect(double x, double z){
-        glColor3d(1,0,0);
+        glColor3d(1,1,1);
         //  Save transformation
         glPushMatrix();
         glTranslated(x-4.5,0,z-5.0);
 
         glBegin(GL_POLYGON);
-            glVertex3d(0,0,0);
-            glVertex3d(0,0,9);
-            glVertex3d(10,0,9);
-            glVertex3d(10,0,0);
+            glTexCoord2f(0,0);glVertex3d(0,0,0);
+            glTexCoord2f(0,4);glVertex3d(0,0,9);
+            glTexCoord2f(5,4);glVertex3d(10,0,9);
+            glTexCoord2f(5,0);glVertex3d(10,0,0);
         glEnd();
 
         //  Undo transofrmations
@@ -145,16 +149,17 @@ private:
     }
 
     void hangarFloorSquare(double x, double z){
-        glColor3d(1,0,0);
+        glColor3d(1,1,1);
         //  Save transformation
         glPushMatrix();
         glTranslated(x-3.5,0,z-3.5);
 
+        glBindTexture(GL_TEXTURE_2D, texture[1]);
         glBegin(GL_POLYGON);
-            glVertex3d(0,0,0);
-            glVertex3d(0,0,7);
-            glVertex3d(7,0,7);
-            glVertex3d(7,0,0);
+            glTexCoord2f(0,0);glVertex3d(0,0,0);
+            glTexCoord2f(0,7);glVertex3d(0,0,7);
+            glTexCoord2f(7,7);glVertex3d(7,0,7);
+            glTexCoord2f(7,0);glVertex3d(7,0,0);
         glEnd();
 
         //  Undo transofrmations
@@ -162,10 +167,6 @@ private:
     }
 
     void hangarFloor(double x, double z){
-        //  Enable textures
-        glEnable(GL_TEXTURE_2D);
-        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
-
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1,1);
 
@@ -189,16 +190,17 @@ private:
     }
 
     void hangarFloorRectangle(double x, double z){
-        glColor3d(1,0,0);
+        glColor3d(1,1,1);
         //  Save transformation
         glPushMatrix();
         glTranslated(x-4.0,0,z-3.0);
 
+        glBindTexture(GL_TEXTURE_2D, texture[1]);
         glBegin(GL_POLYGON);
-            glVertex3d(0,0,0);
-            glVertex3d(0,0,6);
-            glVertex3d(8,0,6);
-            glVertex3d(8,0,0);
+            glTexCoord2f(0,0);glVertex3d(0,0,0);
+            glTexCoord2f(0,3);glVertex3d(0,0,6);
+            glTexCoord2f(5,3);glVertex3d(8,0,6);
+            glTexCoord2f(5,0);glVertex3d(8,0,0);
         glEnd();
 
         //  Undo transofrmations
