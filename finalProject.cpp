@@ -5,6 +5,7 @@
 #include "Hangar.cpp"
 #include "XB70Bomber.cpp"
 #include "FighterJet.cpp"
+#include "MQ9.cpp"
 #include <iostream>
 
 // ----------------------------------------------------------
@@ -24,22 +25,6 @@ int projectionMode = 1;
 double THX;
 double THZ;
 
-// Light values
-int light     =   0;  //  Lighting
-int one       =   1;  // Unit value
-float distance  =  70.0f; // Light distance
-int inc       =  10;  // Ball increment
-int smooth    =   1;  // Smooth/Flat shading
-int local     =   0;  // Local Viewer Model
-float emission  =   0;  // Emission intensity (%)
-float ambient   =  25.0f;  // Ambient intensity (%)
-float diffuse   = 100.0f;  // Diffuse intensity (%)
-float specular  =   0.0f;  // Specular intensity (%)
-int shininess =   0;  // Shininess (power of two)
-float shiny   =   1;  // Shininess (value)
-float zh        =  90.0f;  // Light azimuth
-float ylight  =   0.0f;  // Elevation of light
-int move      =   1;  //  Move light
 unsigned int texture[12]; // Texture names
 
 double previousMouseY;
@@ -49,6 +34,23 @@ Camera* camera;
 Hangar* hangar;
 XB70Bomber* bomber;
 FighterJet* myJet;
+MQ9* uh60Heli;
+
+// Light values
+int one       =   1;  // Unit value
+int distance  =   220;  // Light distance
+int inc       =  10;  // Ball increment
+int smooth    =   1;  // Smooth/Flat shading
+int local     =   0;  // Local Viewer Model
+float emission  =   0;  // Emission intensity (%)
+float ambient   =  30;  // Ambient intensity (%)
+float diffuse   = 100;  // Diffuse intensity (%)
+int specular  =   0;  // Specular intensity (%)
+int shininess =   0;  // Shininess (power of two)
+float shiny   =   1;  // Shininess (value)
+int zh        =  90;  // Light azimuth
+float ylight  =   50;  // Elevation of light
+bool light = true;
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -143,10 +145,12 @@ void mouseCallback(GLFWwindow *window, double x, double y)
 // display() Callback function
 // ----------------------------------------------------------
 void display(GLFWwindow* window){
+
   //  Clear screen and Z-buffer
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  // Reset transformations
+
+  //  Undo previous transformations
   glLoadIdentity();
 
   if(projectionMode == 1){
@@ -155,21 +159,18 @@ void display(GLFWwindow* window){
     camera->perspectiveMode();
   }
 
-  //  Flat or smooth shading
-  glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
-
   //  Light switch
   if (light)
   {
     //  Translate intensity to color vectors
-    float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0};
-    float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0};
-    float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0};
+    float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
+    float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0f};
+    float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0f};
     //  Light position
-    float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0f};
+    float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
     //  Draw light position as ball (still no lighting here)
     glColor3f(1,1,1);
-    ball(Position[0],Position[1],Position[2] ,0.25, emission, shiny, inc);
+    ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
     //  OpenGL should normalize normal vectors
     glEnable(GL_NORMALIZE);
     //  Enable lighting
@@ -187,33 +188,29 @@ void display(GLFWwindow* window){
     glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
     glLightfv(GL_LIGHT0,GL_POSITION,Position);
   }
-  else{
+  else
     glDisable(GL_LIGHTING);
-  }
 
+
+  //What to draw
+  skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+  hangar->drawHangar(25,0,17.5,15);
+  bomber->drawBomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0, true);
+  bomber->drawBomber(450,150,350, 1,0,1, 0,1,0, 3, 0, 15, false);
+  myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
+  myJet->drawFighterJet(125,13,145,1,0,1,0,1,0,4,0,0, true);
+  
+  uh60Heli->drawMQ9(112,18,412,350,90,180,-25);
+
+  glDisable(GL_LIGHTING);
   if(drawAxis){
     drawAxisLines();
     drawAxisLabels();
   }
-
-  //What to draw
-  skyboxCube(200,0,200,900,900,900,0, emission, shiny, texture);  
-  hangar->drawHangar(25,0,17.5,15);
-  bomber->drawBomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0, true);
-  bomber->drawBomber(390,130,250, 1,0,1, 0,1,0, 2.5, 0, 15, false);
-  myJet->drawFighterJet(120,15,140,1,0,1,0,1,0,4,0,0);
   
   //  Display parameters
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
-  Print("Angle=%.1f,%.1f Dim=%.1f FOV=%d Light=%s",camera->th,camera->ph,camera->dim,fov,light?"On":"Off");
-  if (light)
-  {
-    glWindowPos2i(5,45);
-    Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",distance,ylight);
-    glWindowPos2i(5,25);
-    Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shiny);
-  }
   glWindowPos2i(5,65);
   Print("Camera Mode: ");
   if(projectionMode == 1)
@@ -254,7 +251,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(30,15,40,200);
+  camera = new Camera(550,13,250,200);
 
   //  Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -315,11 +312,15 @@ int main(int argc, char* argv[]){
   hangar = new Hangar();
   bomber = new XB70Bomber();
   myJet = new FighterJet();
+  uh60Heli = new MQ9();
 
   //  Event loop
   ErrCheck("init");
   while(!glfwWindowShouldClose(window))
   {
+    //  Elapsed time in seconds
+    double t = glfwGetTime();
+    zh = fmod(90*t,360.0);
     //  Display
     display(window);
     //  Process any events

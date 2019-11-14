@@ -31,7 +31,7 @@ public:
  */
         void drawFighterJet(double x,double y,double z,
                            double dx,double dy,double dz,
-                           double ux,double uy, double uz, double scale, double thx, double thz)
+                           double ux,double uy, double uz, double scale, double thx, double thz, bool landingGear)
 {
   int mode = 0;
   const double wid = 1;   //The "width of the plane's "Fuselage"
@@ -82,13 +82,6 @@ public:
   double aX, aY, aZ;
   double bX, bY, bZ;
   double nX, nY, nZ;
-
-  //  Set specular color to white
-  float white[] = {1,1,1,1};
-  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
-  glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
 
   //  Enable textures
   glEnable(GL_TEXTURE_2D);
@@ -333,10 +326,12 @@ public:
   // ----------------------------------------------------------
   // Landing Gear
   // ----------------------------------------------------------
-  drawLandingGear(shipBowXend-2,-wid,0,3,0.5);
-  drawLandingGear(wingXend+3,-wid,-3,3,0.5);
-  drawLandingGear(wingXend+3,-wid,3,3,0.5);
-
+  if(landingGear){
+    drawLandingGear(shipBowXend-2,-wid,0,3,0.5);
+    drawLandingGear(wingXend+3,-wid,-3,3,0.5);
+    drawLandingGear(wingXend+3,-wid,3,3,0.5);
+  }
+  
   //  Undo transformations
   glPopMatrix();
 }

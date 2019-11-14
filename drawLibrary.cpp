@@ -175,12 +175,6 @@ void skyboxCube(double x,double y,double z,
                  double th, float emission, float shiny, unsigned int texture[])
 {
   int mode = 0;
-  //  Set specular color to white
-  float white[] = {1,1,1,1};
-  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
-  glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
   //  Save transformation
   glPushMatrix();
   //  Offset, scale and rotate
@@ -301,41 +295,39 @@ void ball(double x,double y,double z,double r, float emission, float shiny, int 
  *     rotation about
  */
 void planeTire(double x,double y,double z, double r){
-  glEnable(GL_TEXTURE_2D);
   //  Save transformation
   glPushMatrix();
   //  Offset and scale
   glTranslated(x,y,z-0.25);
     glRotated(0,0,1,0);
   glScaled(r,r,r);
-  //  Head & Tail
   glColor3f(0,0,0);
 
   glNormal3f(0,0,-1);
   glBegin(GL_TRIANGLE_FAN);
-    glTexCoord2f(0.5,0.5);
+    //glTexCoord2f(0.5,0.5);
     glVertex3f(0,0,0);
     for(int k=0;k<=360;k+=10){
-      glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+      //glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
       glVertex3f(Cos(k),Sin(k),0);
     }
   glEnd();
 
   glNormal3f(0,0,1);
   glBegin(GL_TRIANGLE_FAN);
-  glTexCoord2f(0.5,0.5);
+  //glTexCoord2f(0.5,0.5);
   glVertex3f(0,0,0.5);
   for(int k=0;k<=360;k+=10){
-    glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+    //glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
     glVertex3f(Cos(k),Sin(k),0.5);
   }
   glEnd();
 
   glBegin(GL_QUAD_STRIP);
     for(int k=0;k<=360;k+=10){
-      glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+      //glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
       glVertex3f(Cos(k),Sin(k),0);
-      glTexCoord2d(Cos(k),Sin(k));
+      //glTexCoord2d(Cos(k),Sin(k));
       glVertex3f(Cos(k),Sin(k),0.5);
     }
   glEnd();
