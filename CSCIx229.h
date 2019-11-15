@@ -45,6 +45,11 @@ void hangarFloor(double x, double z);
 void hangarFloorRectangle(double x, double z);
 void planeTire(double x,double y,double z,double r);
 void drawLandingGear(double x,double y,double z, double h, double s);
+void PrintShaderLog(int obj,char* file);
+void PrintProgramLog(int obj);
+int CreateShader(GLenum type,char* file);
+int CreateShaderProg(char* VertFile,char* FragFile);
+char* ReadText(char *file);
 void skyboxCube(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th, float emission, float shiny, unsigned int texture[]);

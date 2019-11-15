@@ -4,12 +4,14 @@ class Hangar{
 
 public:
     int mode;
+    int shader[2] = {0,0};
 
     Hangar(){
         mode = 0;
         texture[0] = LoadTexBMP("Textures/HangarTextures/hangarFloor256.bmp");
         texture[1] = LoadTexBMP("Textures/HangarTextures/redCarpet.bmp");
         texture[2] = LoadTexBMP("Textures/HangarTextures/hangarWall.bmp");
+        shader[0] = CreateShaderProg("Shaders/pixtex.vert","Shaders/pixtex.frag");
     }
 
     void drawHangar(double x, double y, double z, double r){
@@ -18,8 +20,8 @@ public:
 
         //  Save transformation
         glPushMatrix();
-        glScaled(r,r,r);
         glTranslated(x-25,y,z-17.5);
+        glScaled(r,r,r);
         hangarFloorSquare(7.5,7.5);
         hangarFloorSquare(7.5,27.5);
         hangarFloorSquare(42.5,7.5);
@@ -31,10 +33,10 @@ public:
         hangarFloorRectangle(29,29);
         centerRect(20,17.5);
         centerRect(30,17.5);
-        hangarLengthWall(25,0,0,1);
-        hangarLengthWall(25,0,35,-1);
-        hangarWidthWall(0, 0, 17.5,1);
-        hangarWidthWall(50, 0, 17.5,-1);
+        //hangarLengthWall(25,0,0,1);
+        //hangarLengthWall(25,0,35,-1);
+        //hangarWidthWall(0, 0, 17.5,-1);
+        //hangarWidthWall(50, 0, 17.5,1);
         hangarRoof(25,10,0,1,0);
 
         //  Undo transofrmations
@@ -105,7 +107,6 @@ private:
         glPushMatrix();
         glTranslated(x-4.5,0,z-5.0);
 
-        glNormal3d(0,1,0);
         glBegin(GL_POLYGON);
             glNormal3d(0,1,0);
             glTexCoord2f(0,0);glVertex3d(0,0,0);
@@ -181,6 +182,7 @@ private:
     }
 
     void hangarFloor(double x, double z){
+        glUseProgram(shader[0]);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1,1);
 
@@ -202,6 +204,7 @@ private:
         glPopMatrix();
         //  Disable polygon offset
         glDisable(GL_POLYGON_OFFSET_FILL);
+         glUseProgram(0);
     }
 
     void hangarFloorRectangle(double x, double z){

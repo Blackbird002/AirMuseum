@@ -38,15 +38,15 @@ MQ9* uh60Heli;
 
 // Light values
 int one       =   1;  // Unit value
-int distance  =   220;  // Light distance
+int distance  =   230;  // Light distance
 int inc       =  10;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 float emission  =   0;  // Emission intensity (%)
-float ambient   =  30;  // Ambient intensity (%)
+float ambient   =  0;  // Ambient intensity (%)
 float diffuse   = 100;  // Diffuse intensity (%)
 int specular  =   0;  // Specular intensity (%)
-int shininess =   0;  // Shininess (power of two)
+int shininess =   64;  // Shininess (power of two)
 float shiny   =   1;  // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   50;  // Elevation of light
@@ -309,10 +309,10 @@ int main(int argc, char* argv[]){
   texture[10] = LoadTexBMP("Textures/back.bmp");
 
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
+  uh60Heli = new MQ9();
   hangar = new Hangar();
   bomber = new XB70Bomber();
   myJet = new FighterJet();
-  uh60Heli = new MQ9();
 
   //  Event loop
   ErrCheck("init");
