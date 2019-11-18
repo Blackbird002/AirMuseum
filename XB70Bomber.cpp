@@ -102,7 +102,7 @@ void drawBomber(double x,double y,double z,
 
   //  Set specular color to white
   float white[] = {1,1,1,1};
-  float Emission[]  = {0.0,0.0,0.01*emission,1.0};
+  float Emission[]  = {0.0f,0.0f,0.01f*emission,1.0f};
   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);

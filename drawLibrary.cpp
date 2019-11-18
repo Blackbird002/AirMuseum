@@ -350,7 +350,7 @@ void drawLandingGear(double x,double y,double z, double h, double s){
   glScaled(s,s,s);
   
   planeTire(0,0-h,0+0.5,1);
-  glLineWidth(3);
+  glLineWidth(4);
   glColor3d(0.5,0.5,0.5);
   glBegin(GL_LINES);
     glVertex3f(0, 0, 0);

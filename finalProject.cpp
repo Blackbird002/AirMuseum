@@ -8,6 +8,7 @@
 #include "MQ9.cpp"
 #include "UH60.cpp"
 #include <iostream>
+#include <cstring>
 
 // ----------------------------------------------------------
 // Global Variables
@@ -287,7 +288,7 @@ int main(int argc, char* argv[]){
   glfwMakeContextCurrent(window);
 
   //  Enable VSYNC
-  //glfwSwapInterval(1);
+  glfwSwapInterval(1);
 
   //  Set callback for window resize
   glfwSetWindowSizeCallback(window,reshape);
@@ -319,11 +320,14 @@ int main(int argc, char* argv[]){
   texture[6] = LoadTexBMP("Textures/left.bmp");
   texture[7] = LoadTexBMP("Textures/right.bmp");
   texture[8] = LoadTexBMP("Textures/top.bmp");
-  texture[9] = LoadTexBMP("Textures/bottom.bmp");
   texture[10] = LoadTexBMP("Textures/back.bmp");
 
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
-  shader[0] = CreateShaderProg("Shaders/pixtex.vert","Shaders/pixtex.frag");
+
+  char pixVert[] = "Shaders/pixtex.vert";
+  char pixFrag[] = "Shaders/pixtex.frag";
+  shader[0] = CreateShaderProg(pixVert,pixFrag);
+
   mq9 = new MQ9();
   hangar = new Hangar(shader,10);
   bomber = new XB70Bomber();
