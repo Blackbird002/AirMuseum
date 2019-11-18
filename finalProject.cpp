@@ -6,6 +6,7 @@
 #include "XB70Bomber.cpp"
 #include "FighterJet.cpp"
 #include "MQ9.cpp"
+#include "UH60.cpp"
 #include <iostream>
 
 // ----------------------------------------------------------
@@ -15,6 +16,7 @@ int currentScene = 1;
 bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
+double scale = 15;
 
 /*
   1 - First person 
@@ -34,11 +36,12 @@ Camera* camera;
 Hangar* hangar;
 XB70Bomber* bomber;
 FighterJet* myJet;
-MQ9* uh60Heli;
+MQ9* mq9;
+UH60* uh60;
 
 // Light values
 int one       =   1;  // Unit value
-int distance  =   230;  // Light distance
+int distance  =   180;  // Light distance
 int inc       =  10;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
@@ -51,6 +54,8 @@ float shiny   =   1;  // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   50;  // Elevation of light
 bool light = true;
+
+int shader[10] = {0,0};
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -88,13 +93,13 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
 
   //Moving camera only in First person & FOV
   if (projectionMode == 1){
-    if(key == GLFW_KEY_W)
+    if(key == GLFW_KEY_W )
       camera->moveForward();
     else if(key == GLFW_KEY_S)
       camera->moveBackward();  
-    else if(key == GLFW_KEY_A)
+    else if(key == GLFW_KEY_A )
       camera->strafeLeft();
-    else if(key == GLFW_KEY_D)
+    else if(key == GLFW_KEY_D )
       camera->strafeRight();
       //  Change field of view angle
     else if (key == GLFW_KEY_Z){
@@ -152,8 +157,14 @@ void display(GLFWwindow* window){
 
   //  Undo previous transformations
   glLoadIdentity();
-
+  
   if(projectionMode == 1){
+    //glPushMatrix();
+    //gluLookAt(0,camera->cameraY,0,
+            //camera->cameraX+0,camera->cameraY + camera->cameraLookY,camera->cameraZ+0,
+            //0,1,0); 
+    //skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+    //glPopMatrix();
     camera->firstPerson();
   }else if(projectionMode == 2){
     camera->perspectiveMode();
@@ -194,13 +205,16 @@ void display(GLFWwindow* window){
 
   //What to draw
   skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
-  hangar->drawHangar(25,0,17.5,15);
-  bomber->drawBomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0, true);
-  bomber->drawBomber(450,150,350, 1,0,1, 0,1,0, 3, 0, 15, false);
+  hangar->drawHangar(25,0,17.5,scale);
+  bomber->drawBomber(350,32,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
+  bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
   myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
-  myJet->drawFighterJet(125,13,145,1,0,1,0,1,0,4,0,0, true);
-  
-  uh60Heli->drawMQ9(112,18,412,350,90,180,-25);
+  myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
+
+  glUseProgram(shader[0]);
+  mq9->drawMQ9(112,17,412,350,90,180,-25);
+  uh60->drawuh60(430,11.75,440,8,90,180,90);
+  glUseProgram(0);
 
   glDisable(GL_LIGHTING);
   if(drawAxis){
@@ -251,7 +265,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(550,13,250,200);
+  camera = new Camera(550,13,250,200,15);
 
   //  Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -273,7 +287,7 @@ int main(int argc, char* argv[]){
   glfwMakeContextCurrent(window);
 
   //  Enable VSYNC
-  glfwSwapInterval(1);
+  //glfwSwapInterval(1);
 
   //  Set callback for window resize
   glfwSetWindowSizeCallback(window,reshape);
@@ -309,10 +323,12 @@ int main(int argc, char* argv[]){
   texture[10] = LoadTexBMP("Textures/back.bmp");
 
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
-  uh60Heli = new MQ9();
-  hangar = new Hangar();
+  shader[0] = CreateShaderProg("Shaders/pixtex.vert","Shaders/pixtex.frag");
+  mq9 = new MQ9();
+  hangar = new Hangar(shader,10);
   bomber = new XB70Bomber();
   myJet = new FighterJet();
+  uh60 = new UH60();
 
   //  Event loop
   ErrCheck("init");
