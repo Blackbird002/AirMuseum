@@ -5,7 +5,10 @@
 #include "Hangar.cpp"
 #include "XB70Bomber.cpp"
 #include "FighterJet.cpp"
+#include "MQ9.cpp"
+#include "UH60.cpp"
 #include <iostream>
+#include <cstring>
 
 // ----------------------------------------------------------
 // Global Variables
@@ -14,6 +17,7 @@ int currentScene = 1;
 bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
+double scale = 15;
 
 /*
   1 - First person 
@@ -24,22 +28,6 @@ int projectionMode = 1;
 double THX;
 double THZ;
 
-// Light values
-int light     =   0;  //  Lighting
-int one       =   1;  // Unit value
-float distance  =  70.0f; // Light distance
-int inc       =  10;  // Ball increment
-int smooth    =   1;  // Smooth/Flat shading
-int local     =   0;  // Local Viewer Model
-float emission  =   0;  // Emission intensity (%)
-float ambient   =  25.0f;  // Ambient intensity (%)
-float diffuse   = 100.0f;  // Diffuse intensity (%)
-float specular  =   0.0f;  // Specular intensity (%)
-int shininess =   0;  // Shininess (power of two)
-float shiny   =   1;  // Shininess (value)
-float zh        =  90.0f;  // Light azimuth
-float ylight  =   0.0f;  // Elevation of light
-int move      =   1;  //  Move light
 unsigned int texture[12]; // Texture names
 
 double previousMouseY;
@@ -49,6 +37,26 @@ Camera* camera;
 Hangar* hangar;
 XB70Bomber* bomber;
 FighterJet* myJet;
+MQ9* mq9;
+UH60* uh60;
+
+// Light values
+int one       =   1;  // Unit value
+int distance  =   180;  // Light distance
+int inc       =  10;  // Ball increment
+int smooth    =   1;  // Smooth/Flat shading
+int local     =   0;  // Local Viewer Model
+float emission  =   0;  // Emission intensity (%)
+float ambient   =  0;  // Ambient intensity (%)
+float diffuse   = 100;  // Diffuse intensity (%)
+int specular  =   0;  // Specular intensity (%)
+int shininess =   64;  // Shininess (power of two)
+float shiny   =   1;  // Shininess (value)
+int zh        =  90;  // Light azimuth
+float ylight  =   50;  // Elevation of light
+bool light = true;
+
+int shader[10] = {0,0};
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -86,13 +94,13 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
 
   //Moving camera only in First person & FOV
   if (projectionMode == 1){
-    if(key == GLFW_KEY_W)
+    if(key == GLFW_KEY_W )
       camera->moveForward();
     else if(key == GLFW_KEY_S)
       camera->moveBackward();  
-    else if(key == GLFW_KEY_A)
+    else if(key == GLFW_KEY_A )
       camera->strafeLeft();
-    else if(key == GLFW_KEY_D)
+    else if(key == GLFW_KEY_D )
       camera->strafeRight();
       //  Change field of view angle
     else if (key == GLFW_KEY_Z){
@@ -143,33 +151,38 @@ void mouseCallback(GLFWwindow *window, double x, double y)
 // display() Callback function
 // ----------------------------------------------------------
 void display(GLFWwindow* window){
+
   //  Clear screen and Z-buffer
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  // Reset transformations
-  glLoadIdentity();
 
+  //  Undo previous transformations
+  glLoadIdentity();
+  
   if(projectionMode == 1){
+    //glPushMatrix();
+    //gluLookAt(0,camera->cameraY,0,
+            //camera->cameraX+0,camera->cameraY + camera->cameraLookY,camera->cameraZ+0,
+            //0,1,0); 
+    //skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+    //glPopMatrix();
     camera->firstPerson();
   }else if(projectionMode == 2){
     camera->perspectiveMode();
   }
 
-  //  Flat or smooth shading
-  glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
-
   //  Light switch
   if (light)
   {
     //  Translate intensity to color vectors
-    float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0};
-    float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0};
-    float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0};
+    float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
+    float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0f};
+    float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0f};
     //  Light position
-    float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0f};
+    float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
     //  Draw light position as ball (still no lighting here)
     glColor3f(1,1,1);
-    ball(Position[0],Position[1],Position[2] ,0.25, emission, shiny, inc);
+    ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
     //  OpenGL should normalize normal vectors
     glEnable(GL_NORMALIZE);
     //  Enable lighting
@@ -187,33 +200,32 @@ void display(GLFWwindow* window){
     glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
     glLightfv(GL_LIGHT0,GL_POSITION,Position);
   }
-  else{
+  else
     glDisable(GL_LIGHTING);
-  }
 
+
+  //What to draw
+  skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+  hangar->drawHangar(25,0,17.5,scale);
+  bomber->drawBomber(350,32,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
+  bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
+  myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
+  myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
+
+  glUseProgram(shader[0]);
+  mq9->drawMQ9(112,17,412,350,90,180,-25);
+  uh60->drawuh60(430,11.75,440,8,90,180,90);
+  glUseProgram(0);
+
+  glDisable(GL_LIGHTING);
   if(drawAxis){
     drawAxisLines();
     drawAxisLabels();
   }
-
-  //What to draw
-  skyboxCube(200,0,200,900,900,900,0, emission, shiny, texture);  
-  hangar->drawHangar(25,0,17.5,15);
-  bomber->drawBomber(350,21,250, 1,0,0, 0,1,0, 2.5, 0, 0, true);
-  bomber->drawBomber(390,130,250, 1,0,1, 0,1,0, 2.5, 0, 15, false);
-  myJet->drawFighterJet(120,15,140,1,0,1,0,1,0,4,0,0);
   
   //  Display parameters
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
-  Print("Angle=%.1f,%.1f Dim=%.1f FOV=%d Light=%s",camera->th,camera->ph,camera->dim,fov,light?"On":"Off");
-  if (light)
-  {
-    glWindowPos2i(5,45);
-    Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",distance,ylight);
-    glWindowPos2i(5,25);
-    Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shiny);
-  }
   glWindowPos2i(5,65);
   Print("Camera Mode: ");
   if(projectionMode == 1)
@@ -254,7 +266,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(30,15,40,200);
+  camera = new Camera(550,13,250,200,15);
 
   //  Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -308,18 +320,27 @@ int main(int argc, char* argv[]){
   texture[6] = LoadTexBMP("Textures/left.bmp");
   texture[7] = LoadTexBMP("Textures/right.bmp");
   texture[8] = LoadTexBMP("Textures/top.bmp");
-  texture[9] = LoadTexBMP("Textures/bottom.bmp");
   texture[10] = LoadTexBMP("Textures/back.bmp");
 
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
-  hangar = new Hangar();
+
+  char pixVert[] = "Shaders/pixtex.vert";
+  char pixFrag[] = "Shaders/pixtex.frag";
+  shader[0] = CreateShaderProg(pixVert,pixFrag);
+
+  mq9 = new MQ9();
+  hangar = new Hangar(shader,10);
   bomber = new XB70Bomber();
   myJet = new FighterJet();
+  uh60 = new UH60();
 
   //  Event loop
   ErrCheck("init");
   while(!glfwWindowShouldClose(window))
   {
+    //  Elapsed time in seconds
+    double t = glfwGetTime();
+    zh = fmod(90*t,360.0);
     //  Display
     display(window);
     //  Process any events

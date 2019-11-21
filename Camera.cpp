@@ -14,19 +14,22 @@ public:
     double th=321;         //  Azimuth of view angle (y)
     double ph=29;         //  Elevation of view angle (x)
 
+    double scale;
+
     Camera(){
         this->cameraX = 50.0;
         this->cameraY = 10.0;
         this->cameraZ = 25.0;
     }
 
-    Camera(double x, double y, double z, double dim){
+    Camera(double x, double y, double z, double dim, double hangarScale){
         this->cameraX = x;
         this->cameraY = y;
         this->cameraZ = z;
         this->dim = dim;
+        this->scale = hangarScale;
     }
-
+    
     double getDim(){return dim;}
     double getTh(){return th;}
     double getPh(){return ph;}
@@ -37,6 +40,7 @@ public:
         cameraLookX = 2*dim*Sin(th);
         cameraLookZ = -2*dim*Cos(th);
         cameraLookY = 2*dim*Sin(ph);
+
         gluLookAt(cameraX,cameraY,cameraZ,
                 cameraX+cameraLookX,cameraY + cameraLookY,cameraZ+cameraLookZ,
                 0,1,0); 
@@ -64,6 +68,17 @@ public:
 
     void strafeRight(){
         rightStrafeMovement(cameraLookX, cameraLookY, cameraLookZ, 2);
+    }
+
+    bool outOfBounds(){
+        bool result = false;
+        if(cameraX <= (1*scale) || cameraX >= (49*scale))
+            result = true;
+        
+        if(cameraZ <= (1*scale) || cameraZ >= (34*scale))
+            result = true;
+
+        return result;
     }
 
     private:

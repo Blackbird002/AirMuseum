@@ -36,15 +36,20 @@ void Vertex(int th,int ph);
 void Sphere(double x,double y,double z,double r, float emission, float shiny);
 void drawAxisLines();
 void drawAxisLabels();
+int LoadOBJ(const char* file);
 void ball(double x,double y,double z,double r, float emission, float shiny, int inc);
 void engineSphere(double x,double y,double z,double r, double yRot, float emission, float shiny);
 void disk(double x,double y,double z,double r, double th);
 void hangarFloorSquare(double x, double z);
 void hangarFloor(double x, double z);
 void hangarFloorRectangle(double x, double z);
-int  LoadOBJ(const char* file);
 void planeTire(double x,double y,double z,double r);
 void drawLandingGear(double x,double y,double z, double h, double s);
+void PrintShaderLog(int obj,char* file);
+void PrintProgramLog(int obj);
+int CreateShader(GLenum type,char* file);
+int CreateShaderProg(char* VertFile,char* FragFile);
+char* ReadText(char *file);
 void skyboxCube(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th, float emission, float shiny, unsigned int texture[]);
