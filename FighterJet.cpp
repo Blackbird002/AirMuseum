@@ -90,10 +90,11 @@ public:
   //  Save current transforms
   glPushMatrix();
   //  Offset, scale and rotate
-  glTranslated(x+12,y,z);
+  glTranslated(x,y,z);
   glMultMatrixd(mat);
   glRotated(thx,1,0,0);
   glRotated(thz,0,0,1);
+  glTranslated(12,0,0);
   glScaled(scale,scale,scale);
 
   // ----------------------------------------------------------

@@ -11,6 +11,8 @@ public:
         texture[0] = LoadTexBMP("Textures/HangarTextures/hangarFloor256.bmp");
         texture[1] = LoadTexBMP("Textures/HangarTextures/redCarpet.bmp");
         texture[2] = LoadTexBMP("Textures/HangarTextures/hangarWall.bmp");
+        texture[3] = LoadTexBMP("Textures/HangarTextures/hangarTopWall.bmp");
+        texture[4] = LoadTexBMP("Textures/al.bmp");
         for(int i =0; i < size; i++){
             shader[i] = shaderArray[i];
         }
@@ -70,30 +72,39 @@ private:
         glRotated(th,0,1,0);
         glScaled(r,r,r);
 
-        glColor3f(0.25,0.25,0.25);
-
+        glColor3d(1,1,1);
+        glBindTexture(GL_TEXTURE_2D, texture[3]);
+        
         //Rear section of roof
-        glColor3f(0.1,0.1,0.1);
         glBegin(GL_TRIANGLE_FAN);
+            glNormal3d(0,0,1);
+            glTexCoord2f(0,0);
             glVertex3f(0,0,0);
             for(int k=0;k<=180;k+=10){
-            glVertex3f(25*Cos(k),7*Sin(k),0);
+                glTexCoord2f(6*-Cos(k),6*Sin(k));
+                glVertex3f(25*Cos(k),7*Sin(k),0);
             }
         glEnd();
 
         //Front section of roof
         glBegin(GL_TRIANGLE_FAN);
+            glNormal3d(0,0,-1);
+            glTexCoord2f(0,0);
             glVertex3f(0,0,35);
             for(int k=0;k<=180;k+=10){
-            glVertex3f(25*Cos(k),7*Sin(k),35);
+                glTexCoord2f(6*-Cos(k),6*Sin(k));
+                glVertex3f(25*Cos(k),7*Sin(k),35);
             }
         glEnd();
 
+        glColor3f(0.3,0.3,0.3);
         //  Enable blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
+    
         glBegin(GL_QUAD_STRIP);
+            glTexCoord2f(0,0);
+            glNormal3d(0,-1,0);
             for(int k=0;k<=180;k+=10){
                 glVertex3f(25*Cos(k),7*Sin(k),0);
                 glVertex3f(25*Cos(k),7*Sin(k),35);
@@ -101,7 +112,7 @@ private:
         glEnd();
         //Disable blending
         glDisable(GL_BLEND);
-        
+
         //  Undo transformations
         glPopMatrix();
     }
