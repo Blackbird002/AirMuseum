@@ -1,4 +1,5 @@
 #include "CSCIx229.h"
+#include <iostream>
 
 class Camera{
 
@@ -16,6 +17,8 @@ public:
 
     double scale;
 
+    double xMax,xMin,zMin,zMax;
+
     Camera(){
         this->cameraX = 50.0;
         this->cameraY = 10.0;
@@ -28,6 +31,11 @@ public:
         this->cameraZ = z;
         this->dim = dim;
         this->scale = hangarScale;
+
+        xMax = scale * 49;
+        xMin = scale * 1;
+        zMax = scale * 34;
+        zMin = scale * 1;
     }
     
     double getDim(){return dim;}
@@ -70,17 +78,6 @@ public:
         rightStrafeMovement(cameraLookX, cameraLookY, cameraLookZ, 2);
     }
 
-    bool outOfBounds(){
-        bool result = false;
-        if(cameraX <= (1*scale) || cameraX >= (49*scale))
-            result = true;
-        
-        if(cameraZ <= (1*scale) || cameraZ >= (34*scale))
-            result = true;
-
-        return result;
-    }
-
     private:
 
     void leftStrafeMovement(double bX, double bY, double bZ, double moveUnits){
@@ -99,10 +96,17 @@ public:
         //double crossY = (aY*bX) - (aX*bZ);
         double crossZ = (aX*bZ) - (aY*bX);
 
-        //Add cross vector to camera position vector 
-        cameraX += moveUnits*crossX;
-        //cameraY += moveUnits*crossY;
-        cameraZ += moveUnits*crossZ;
+        //Add cross vector to camera position vector...
+
+        //Prevent from leaving hangar in X direction
+        if((cameraX + moveUnits*crossX) < xMax && (cameraX + moveUnits*crossX > xMin))
+            cameraX += moveUnits*crossX;
+        
+        //Prevent from leaving hangar in Z direction
+        if((cameraZ + moveUnits*crossZ) < zMax && (cameraZ + moveUnits*crossZ > zMin))
+            cameraZ += moveUnits*crossZ;
+        
+        
     }
 
     void rightStrafeMovement(double bX, double bY, double bZ, double moveUnits){
@@ -122,9 +126,14 @@ public:
         double crossZ = (aX*bZ) - (aY*bX);
 
         //Add cross vector to camera position vector 
-        cameraX += moveUnits*crossX;
-        //cameraY += moveUnits*crossY;
-        cameraZ += moveUnits*crossZ;
+        
+        //Prevent from leaving hangar in X direction
+        if((cameraX + moveUnits*crossX) < xMax && (cameraX + moveUnits*crossX > xMin))
+            cameraX += moveUnits*crossX;
+        
+        //Prevent from leaving hangar in Z direction
+        if((cameraZ + moveUnits*crossZ) < zMax && (cameraZ + moveUnits*crossZ > zMin))
+            cameraZ += moveUnits*crossZ;
     }
 
     void forwardMovement(double bX, double bY, double bZ, double moveUnits){
@@ -134,8 +143,16 @@ public:
         bY /= mag;
         bZ /= mag;
 
-        cameraX += moveUnits*bX;
-        cameraZ += moveUnits*bZ;
+        double newCamX = cameraX + moveUnits*bX;
+        double newCamZ = cameraZ + moveUnits*bZ;
+        
+        //Prevent from leaving hangar in X direction
+        if((cameraX + moveUnits*bX) < xMax && (cameraX + moveUnits*bX > xMin) && checkBounds(newCamX,newCamZ))
+            cameraX += moveUnits*bX;
+        
+        //Prevent from leaving hangar in Z direction
+        if((cameraZ + moveUnits*bZ) < zMax && (cameraZ + moveUnits*bZ > zMin) && checkBounds(newCamX,newCamZ))
+            cameraZ += moveUnits*bZ;
     }
 
     void backwardMovement(double bX, double bY, double bZ, double moveUnits){
@@ -145,9 +162,37 @@ public:
         bY /= mag;
         bZ /= mag;
 
-        cameraX -= moveUnits*bX;
-        cameraZ -= moveUnits*bZ;
+        double newCamX = cameraX - moveUnits*bX;
+        double newCamZ = cameraZ - moveUnits*bZ;
+
+        //Prevent from leaving hangar in X direction
+        if((cameraX - moveUnits*bX) < xMax && (cameraX - moveUnits*bX > xMin) && checkBounds(newCamX,newCamZ))
+            cameraX -= moveUnits*bX;
+        
+        //Prevent from leaving hangar in Z direction
+        if((cameraZ - moveUnits*bZ) < zMax && (cameraZ - moveUnits*bZ > zMin) && checkBounds(newCamX,newCamZ))
+            cameraZ -= moveUnits*bZ;
     }
 
-    
+    bool checkBounds(double newX, double newZ){
+        bool result = true;
+
+        //Bottom left square
+        if(newX >= 4*scale && newX <= 11*scale && newZ >= 4*scale && newZ <=11*scale){result = false;}
+        //Bottom right square
+        if(newX >= 4*scale && newX <= 11*scale && newZ >= 24*scale && newZ <=31*scale){result = false;}
+        //Top left square
+        if(newX >= 39*scale && newX <= 46*scale && newZ >= 4*scale && newZ <=11*scale){result = false;}
+        //Top right square
+        if(newX >= 39*scale && newX <= 46*scale && newZ >= 24*scale && newZ <=31*scale){result = false;}
+
+        //Left rectangle
+        if(newX >= 17*scale && newX <= 33*scale && newZ >= 3*scale && newZ <=9*scale){result = false;}
+        //Right rectangle
+        if(newX >= 17*scale && newX <= 33*scale && newZ >= 26*scale && newZ <=32*scale){result = false;}
+        //Center rectangle
+        if(newX >= 15*scale && newX <= 35*scale && newZ >= 13*scale && newZ <=22*scale){result = false;}
+        
+        return result;
+    }  
 };

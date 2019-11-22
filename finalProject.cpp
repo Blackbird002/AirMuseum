@@ -47,13 +47,15 @@ int inc       =  10;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 float emission  =   0;  // Emission intensity (%)
-float ambient   =  0;  // Ambient intensity (%)
+float ambient   =  10;  // Ambient intensity (%)
+float highAmbient   =  40;  // Ambient intensity (%)
 float diffuse   = 100;  // Diffuse intensity (%)
-int specular  =   0;  // Specular intensity (%)
+int specular  =   5;  // Specular intensity (%)
 int shininess =   64;  // Shininess (power of two)
 float shiny   =   1;  // Shininess (value)
 int zh        =  90;  // Light azimuth
-float ylight  =   50;  // Elevation of light
+int th        = 90;
+float ylight  =   100;  // Elevation of light
 bool light = true;
 
 int shader[10] = {0,0};
@@ -171,41 +173,42 @@ void display(GLFWwindow* window){
     camera->perspectiveMode();
   }
 
-  //  Light switch
-  if (light)
-  {
-    //  Translate intensity to color vectors
-    float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
-    float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0f};
-    float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0f};
-    //  Light position
-    float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
-    //  Draw light position as ball (still no lighting here)
-    glColor3f(1,1,1);
-    ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
-    //  OpenGL should normalize normal vectors
-    glEnable(GL_NORMALIZE);
-    //  Enable lighting
-    glEnable(GL_LIGHTING);
-    //  Location of viewer for specular calculations
-    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-    //  glColor sets ambient and diffuse color materials
-    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_COLOR_MATERIAL);
-    //  Enable light 0
-    glEnable(GL_LIGHT0);
-    //  Set ambient, diffuse, specular components and position of light 0
-    glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-    glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-    glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-    glLightfv(GL_LIGHT0,GL_POSITION,Position);
-  }
-  else
-    glDisable(GL_LIGHTING);
+  //  Translate intensity to color vectors
+  float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
+  float AmbientHigh[]   = {0.01f*highAmbient ,0.01f*highAmbient ,0.01f*highAmbient ,1.0f};
+  float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0f};
+  float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0f};
+  //  Light position
+  float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
+  //  Draw light position as ball (still no lighting here)
+  glColor3f(1,1,1);
+  ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
+  //  OpenGL should normalize normal vectors
+  glEnable(GL_NORMALIZE);
+  //  Enable lighting
+  glEnable(GL_LIGHTING);
+  //  Location of viewer for specular calculations
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+  //  glColor sets ambient and diffuse color materials
+  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+  glEnable(GL_COLOR_MATERIAL);
+  //  Enable light 0
+  glEnable(GL_LIGHT0);
+  //  Set ambient, diffuse, specular components and position of light 0
+  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+  glLightfv(GL_LIGHT0,GL_POSITION,Position);
 
+  glLightfv(GL_LIGHT0,GL_AMBIENT , AmbientHigh);
+  skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+
+  //Draw two flying jets
+  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
 
   //What to draw
-  skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
   hangar->drawHangar(25,0,17.5,scale);
   bomber->drawBomber(350,32,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
   bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
@@ -227,11 +230,7 @@ void display(GLFWwindow* window){
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
   glWindowPos2i(5,65);
-  Print("Camera Mode: ");
-  if(projectionMode == 1)
-    Print(" First Person  ");
-  else if (projectionMode == 2)
-    Print(" Perspective  ");
+  Print("Camera Look: [%.1f ,%.1f ,%.1f]", camera->cameraLookX, camera->cameraLookY, camera->cameraLookZ);
 
   glWindowPos2i(5,85);
   if(drawAxis == true)
@@ -341,6 +340,7 @@ int main(int argc, char* argv[]){
     //  Elapsed time in seconds
     double t = glfwGetTime();
     zh = fmod(90*t,360.0);
+    th = fmod(45*t,360.0);
     //  Display
     display(window);
     //  Process any events
@@ -354,6 +354,8 @@ int main(int argc, char* argv[]){
   delete bomber;
   delete hangar;
   delete myJet;
+  delete uh60;
+  delete mq9;
 
   // ANSI C requires main to return int
   return 0;
