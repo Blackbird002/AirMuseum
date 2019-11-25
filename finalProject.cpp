@@ -13,7 +13,6 @@
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
-int currentScene = 1;
 bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
@@ -40,7 +39,7 @@ FighterJet* myJet;
 MQ9* mq9;
 UH60* uh60;
 
-// Light values
+//Light values
 int one       =   1;  // Unit value
 int distance  =   180;  // Light distance
 int inc       =  10;  // Ball increment
@@ -75,13 +74,13 @@ void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
 // key() Callback function
 // ----------------------------------------------------------
 void key(GLFWwindow* window,int key,int scancode,int action,int mods){
-  //  Discard key releases (keeps PRESS and REPEAT)
+  //Discard key releases (keeps PRESS and REPEAT)
   if (action==GLFW_RELEASE) return;
 
-  //  Check for shift
+  //Check for shift
   //int shift = (mods & GLFW_MOD_SHIFT);
 
-  //  Exit on ESC
+  //Exit on ESC
   if (key == GLFW_KEY_ESCAPE)
     glfwSetWindowShouldClose(window,1);
   else if (key==GLFW_KEY_RIGHT)
@@ -124,7 +123,6 @@ void error(int error, const char* text)
   fprintf(stderr,"Error: %s\n",text);
 }
 
-
 void mouseCallback(GLFWwindow *window, double x, double y)
 {
   double deltaY = previousMouseY - y;
@@ -145,6 +143,7 @@ void mouseCallback(GLFWwindow *window, double x, double y)
 
   previousMouseY = y;
   previousMouseX = x;
+
   // Reproject
   Project(fov, asp, camera->dim, projectionMode);
 }	
@@ -162,39 +161,35 @@ void display(GLFWwindow* window){
   glLoadIdentity();
   
   if(projectionMode == 1){
-    //glPushMatrix();
-    //gluLookAt(0,camera->cameraY,0,
-            //camera->cameraX+0,camera->cameraY + camera->cameraLookY,camera->cameraZ+0,
-            //0,1,0); 
-    //skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
-    //glPopMatrix();
     camera->firstPerson();
   }else if(projectionMode == 2){
     camera->perspectiveMode();
   }
 
-  //  Translate intensity to color vectors
+  //Translate intensity to color vectors
   float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
   float AmbientHigh[]   = {0.01f*highAmbient ,0.01f*highAmbient ,0.01f*highAmbient ,1.0f};
   float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0f};
   float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0f};
-  //  Light position
+  //Light position
   float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
-  //  Draw light position as ball (still no lighting here)
+  //Draw light position as ball (still no lighting here)
   glColor3f(1,1,1);
   ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
-  //  OpenGL should normalize normal vectors
+  //OpenGL should normalize normal vectors
   glEnable(GL_NORMALIZE);
-  //  Enable lighting
+  //Enable lighting
   glEnable(GL_LIGHTING);
-  //  Location of viewer for specular calculations
+  //Location of viewer for specular calculations
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-  //  glColor sets ambient and diffuse color materials
+  //glColor sets ambient and diffuse color materials
   glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL);
-  //  Enable light 0
+  //Enable light 0
   glEnable(GL_LIGHT0);
-  //  Set ambient, diffuse, specular components and position of light 0
+  //Set ambient, diffuse, specular components and position of light 0
+
+  //Spot dir, cutoff, exponent
   glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
   glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
   glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
@@ -225,8 +220,9 @@ void display(GLFWwindow* window){
     drawAxisLines();
     drawAxisLabels();
   }
+  glEnable(GL_LIGHTING);
   
-  //  Display parameters
+  //Text Display
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
   glWindowPos2i(5,65);
@@ -241,7 +237,7 @@ void display(GLFWwindow* window){
   glWindowPos2i(5,105);
   Print("Camera: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
 
-  //  Render the scene and make it visible
+  //Render the scene and make it visible
   ErrCheck("display");
   glFlush();
   glfwSwapBuffers(window);
@@ -249,11 +245,11 @@ void display(GLFWwindow* window){
 
 void reshape(GLFWwindow* window,int width,int height)
 {
-  //  Ratio of the width to the height of the window
+  //Ratio of the width to the height of the window
   asp = (height>0) ? (double)width/height : 1;
-  //  Set the viewport to the entire window
+  //Set the viewport to the entire window
   glViewport(0,0, width,height);
-  //  Set projection
+  //Set projection
   Project(fov, asp, camera->dim, projectionMode);
 }
 
@@ -265,15 +261,15 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(550,13,250,200,15);
+  camera = new Camera(550,13,250,200,15,false);
 
-  //  Initialize GLFW
+  //Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
 
-  //  Error callback
+  //Error callback
   glfwSetErrorCallback(error);
 
-  //  Set window properties
+  //Set window properties
   glfwWindowHint(GLFW_RESIZABLE,1);
   glfwWindowHint(GLFW_DOUBLEBUFFER,1);
 
@@ -286,13 +282,13 @@ int main(int argc, char* argv[]){
   
   glfwMakeContextCurrent(window);
 
-  //  Enable VSYNC
+  //Enable VSYNC
   glfwSwapInterval(1);
 
-  //  Set callback for window resize
+  //Set callback for window resize
   glfwSetWindowSizeCallback(window,reshape);
 
-  //  Set initial window size
+  //Set initial window size
   glfwGetWindowSize(window,&width,&height);
 
   reshape(window,width,height);
@@ -301,20 +297,20 @@ int main(int argc, char* argv[]){
   glfwSetKeyCallback(window,key);
   glfwSetCursorPosCallback(window,mouseCallback);
 
-  // Options, removes the mouse cursor for a more immersive experience
-  //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
+  //Removes the mouse cursor for a more immersive experience
+  if (argc > 1) glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
 
-  //  Enable Z-buffer depth test
+  //Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
 
-  //  Load textures
+  //Load textures
   texture[0] = LoadTexBMP("Textures/WhiteMetal.bmp");
   texture[1] = LoadTexBMP("Textures/MetalUs.bmp");
   texture[2] = LoadTexBMP("Textures/al.bmp");
   texture[3] = LoadTexBMP("Textures/glass.bmp");
   texture[4] = LoadTexBMP("Textures/engineTexture.bmp");
 
-  //  For the skybox
+  //For the skybox
   texture[5] = LoadTexBMP("Textures/front.bmp");
   texture[6] = LoadTexBMP("Textures/left.bmp");
   texture[7] = LoadTexBMP("Textures/right.bmp");
@@ -323,17 +319,18 @@ int main(int argc, char* argv[]){
 
   texture[11] = LoadTexBMP("Textures/imageBurner.bmp");
 
+  //Load shaders
   char pixVert[] = "Shaders/pixtex.vert";
   char pixFrag[] = "Shaders/pixtex.frag";
   shader[0] = CreateShaderProg(pixVert,pixFrag);
-
+  S
   mq9 = new MQ9();
   hangar = new Hangar(shader,10);
   bomber = new XB70Bomber();
   myJet = new FighterJet();
   uh60 = new UH60();
 
-  //  Event loop
+  //Main event loop
   ErrCheck("init");
   while(!glfwWindowShouldClose(window))
   {
@@ -346,7 +343,8 @@ int main(int argc, char* argv[]){
     //  Process any events
     glfwPollEvents();
   }
-  //  Shut down GLFW
+
+  //Shut down GLFW
   glfwDestroyWindow(window);
   glfwTerminate();
 

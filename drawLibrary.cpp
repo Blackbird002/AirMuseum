@@ -344,6 +344,7 @@ void planeTire(double x,double y,double z, double r){
  *     s is the scale
  */
 void drawLandingGear(double x,double y,double z, double h, double s){
+  glDisable (GL_LIGHTING);
   glPushMatrix();
   //  Offset
   glTranslated(x,y,z);
@@ -355,10 +356,13 @@ void drawLandingGear(double x,double y,double z, double h, double s){
   glBegin(GL_LINES);
     glVertex3f(0, 0, 0);
     glVertex3f(0, 0-h, 0);
+    glVertex3f(0,0-h,0.5);
+    glVertex3f(0,0-h,-0.5);
   glEnd();
   glLineWidth(1);
   planeTire(0,0-h,0-0.5,1);
 
   //  Undo transformations
   glPopMatrix();
+  glEnable(GL_LIGHTING);
 }

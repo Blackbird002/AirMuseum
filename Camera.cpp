@@ -16,6 +16,7 @@ public:
     double ph=29;         //  Elevation of view angle (x)
 
     double scale;
+    bool movementRestriction;
 
     double xMax,xMin,zMin,zMax;
 
@@ -25,7 +26,7 @@ public:
         this->cameraZ = 25.0;
     }
 
-    Camera(double x, double y, double z, double dim, double hangarScale){
+    Camera(double x, double y, double z, double dim, double hangarScale, bool restriction){
         this->cameraX = x;
         this->cameraY = y;
         this->cameraZ = z;
@@ -36,6 +37,7 @@ public:
         xMin = scale * 1;
         zMax = scale * 34;
         zMin = scale * 1;
+        movementRestriction = restriction;
     }
     
     double getDim(){return dim;}
@@ -96,14 +98,17 @@ public:
         //double crossY = (aY*bX) - (aX*bZ);
         double crossZ = (aX*bZ) - (aY*bX);
 
+        double newCamX = cameraX + moveUnits*crossX;
+        double newCamZ = cameraZ + moveUnits*crossZ;
+
         //Add cross vector to camera position vector...
 
         //Prevent from leaving hangar in X direction
-        if((cameraX + moveUnits*crossX) < xMax && (cameraX + moveUnits*crossX > xMin))
+        if((cameraX + moveUnits*crossX) < xMax && (cameraX + moveUnits*crossX > xMin) && checkBounds(newCamX,newCamZ))
             cameraX += moveUnits*crossX;
         
         //Prevent from leaving hangar in Z direction
-        if((cameraZ + moveUnits*crossZ) < zMax && (cameraZ + moveUnits*crossZ > zMin))
+        if((cameraZ + moveUnits*crossZ) < zMax && (cameraZ + moveUnits*crossZ > zMin) && checkBounds(newCamX,newCamZ))
             cameraZ += moveUnits*crossZ;
         
         
@@ -125,14 +130,17 @@ public:
         //double crossY = (aY*bX) - (aX*bZ);
         double crossZ = (aX*bZ) - (aY*bX);
 
+        double newCamX = cameraX + moveUnits*crossX;
+        double newCamZ = cameraZ + moveUnits*crossZ;
+
         //Add cross vector to camera position vector 
         
         //Prevent from leaving hangar in X direction
-        if((cameraX + moveUnits*crossX) < xMax && (cameraX + moveUnits*crossX > xMin))
+        if((cameraX + moveUnits*crossX) < xMax && (cameraX + moveUnits*crossX > xMin) && checkBounds(newCamX,newCamZ))
             cameraX += moveUnits*crossX;
         
         //Prevent from leaving hangar in Z direction
-        if((cameraZ + moveUnits*crossZ) < zMax && (cameraZ + moveUnits*crossZ > zMin))
+        if((cameraZ + moveUnits*crossZ) < zMax && (cameraZ + moveUnits*crossZ > zMin) && checkBounds(newCamX,newCamZ))
             cameraZ += moveUnits*crossZ;
     }
 
@@ -176,6 +184,9 @@ public:
 
     bool checkBounds(double newX, double newZ){
         bool result = true;
+
+        if(movementRestriction)
+            return result;
 
         //Bottom left square
         if(newX >= 4*scale && newX <= 11*scale && newZ >= 4*scale && newZ <=11*scale){result = false;}
