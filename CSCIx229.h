@@ -49,6 +49,7 @@ void PrintShaderLog(int obj,char* file);
 void PrintProgramLog(int obj);
 int CreateShader(GLenum type,char* file);
 int CreateShaderProg(char* VertFile,char* FragFile);
+void ShadowProjection(float L[4], float E[4], float N[4]);
 char* ReadText(char *file);
 void skyboxCube(double x,double y,double z,
                  double dx,double dy,double dz,

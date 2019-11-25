@@ -28,6 +28,26 @@ public:
         glPushMatrix();
         glTranslated(x-25,y,z-17.5);
         glScaled(r,r,r);
+        hangarLengthWall(25,0,0,1);
+        hangarLengthWall(25,0,35,-1);
+        hangarWidthWall(0, 0, 17.5,1);
+        hangarWidthWall(50, 0, 17.5,-1);
+        hangarRoof(25,10,0,1,0);
+
+        //  Undo transofrmations
+        glPopMatrix();
+        glUseProgram(0);
+    }
+
+    void drawHangarFloor(double x, double y, double z, double r){
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
+        glUseProgram(shader[0]);
+
+        //  Save transformation
+        glPushMatrix();
+        glTranslated(x-25,y,z-17.5);
+        glScaled(r,r,r);
         hangarFloorSquare(7.5,7.5);
         hangarFloorSquare(7.5,27.5);
         hangarFloorSquare(42.5,7.5);
@@ -39,11 +59,6 @@ public:
         hangarFloorRectangle(29,29);
         centerRect(20,17.5);
         centerRect(30,17.5);
-        hangarLengthWall(25,0,0,1);
-        hangarLengthWall(25,0,35,-1);
-        hangarWidthWall(0, 0, 17.5,1);
-        hangarWidthWall(50, 0, 17.5,-1);
-        hangarRoof(25,10,0,1,0);
 
         //  Undo transofrmations
         glPopMatrix();
