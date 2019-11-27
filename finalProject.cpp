@@ -62,7 +62,7 @@ int shader[10] = {0,0};
 float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
 float AmbientHigh[]   = {0.01f*highAmbient ,0.01f*highAmbient ,0.01f*highAmbient ,1.0f};
 
-#define Yfloor 0.01
+#define Yfloor 0.01  // Y position 
 float N[] = {0, -1, 0}; // Normal vector for the plane
 float E[] = {0, Yfloor, 0}; // Point of the plane
 
@@ -205,10 +205,16 @@ void display(GLFWwindow* window){
   skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
   glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
 
+  glDisable(GL_LIGHTING);
+  if(drawAxis){
+    drawAxisLines();
+    drawAxisLabels();
+  }
+  glEnable(GL_LIGHTING);
+
   //Draw two flying jets
   myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
   myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
-
 
   //Draw only the hangar floor
   hangar->drawHangarFloor(25,0,17.5,scale);
@@ -393,9 +399,9 @@ void drawScene(){
 void generateShadow(float Position[]){
   //Save what is glEnabled
   glPushAttrib(GL_ENABLE_BIT);
-   //Draw shadow
    
   glDisable(GL_LIGHTING);
+
   //Enable stencil operations
   glEnable(GL_STENCIL_TEST);
 
@@ -405,8 +411,8 @@ void generateShadow(float Position[]){
 
   //Existing value of stencil buffer doesn't matter
   glStencilFunc(GL_ALWAYS,1,0xFFFFFFFF);
-  //  Set the value to 1 (REF=1 in StencilFunc)
-  //  only if Z-buffer would allow write
+  //Set the value to 1 (REF=1 in StencilFunc)
+  //only if Z-buffer would allow write
   glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
   //Make Z-buffer and color buffer read-only (prevent update)
   glDepthMask(0);
@@ -420,27 +426,22 @@ void generateShadow(float Position[]){
   glDepthMask(1);
   glColorMask(1,1,1,1);
 
-  glDisable(GL_LIGHTING);
-  if(drawAxis){
-    drawAxisLines();
-    drawAxisLabels();
-  }
-  glEnable(GL_LIGHTING);
-
   // ----------------------------------------------------------
   //  Step 2:  Draw shadow masked by stencil buffer
   // ----------------------------------------------------------
 
-  //  Set the stencil test draw where stencil buffer is > 0
+  //Set the stencil test draw where stencil buffer is > 0
   glStencilFunc(GL_LESS,0,0xFFFFFFFF);
-  //  Make the stencil buffer read-only
+
+  //Make the stencil buffer read-only
   glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-  //  Enable blending
+
+  //Enable blending
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
   glColor4f(0,0,0,0.5);
 
-  //  Draw the shadow over the entire floor
+  //  Draw the shadow over the entire hangar floor
   glBegin(GL_QUADS);
     glVertex3f(50*scale,Yfloor,0);
     glVertex3f(50*scale,Yfloor,35*scale);
