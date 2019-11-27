@@ -62,7 +62,7 @@ int shader[10] = {0,0};
 float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
 float AmbientHigh[]   = {0.01f*highAmbient ,0.01f*highAmbient ,0.01f*highAmbient ,1.0f};
 
-#define Yfloor 0
+#define Yfloor 0.01
 float N[] = {0, -1, 0}; // Normal vector for the plane
 float E[] = {0, Yfloor, 0}; // Point of the plane
 
