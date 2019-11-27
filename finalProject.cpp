@@ -54,10 +54,17 @@ int shininess =   64;  // Shininess (power of two)
 float shiny   =   1;  // Shininess (value)
 int zh        =  90;  // Light azimuth
 int th        = 90;
-float ylight  =   100;  // Elevation of light
+float ylight  =   80;  // Elevation of light
 bool light = true;
 
 int shader[10] = {0,0};
+
+float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
+float AmbientHigh[]   = {0.01f*highAmbient ,0.01f*highAmbient ,0.01f*highAmbient ,1.0f};
+
+#define Yfloor 0.01  // Y position 
+float N[] = {0, -1, 0}; // Normal vector for the plane
+float E[] = {0, Yfloor, 0}; // Point of the plane
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -69,7 +76,8 @@ void mouseCallback(GLFWwindow *window, double x, double y);
 void key(GLFWwindow* window,int key,int scancode,int action,int mods);
 void error(int error, const char* text);
 void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
-
+void drawScene();
+void generateShadow(float Position[]);
 // ----------------------------------------------------------
 // key() Callback function
 // ----------------------------------------------------------
@@ -155,7 +163,7 @@ void display(GLFWwindow* window){
 
   //  Clear screen and Z-buffer
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
   //  Undo previous transformations
   glLoadIdentity();
@@ -167,8 +175,6 @@ void display(GLFWwindow* window){
   }
 
   //Translate intensity to color vectors
-  float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
-  float AmbientHigh[]   = {0.01f*highAmbient ,0.01f*highAmbient ,0.01f*highAmbient ,1.0f};
   float Diffuse[]   = {0.01f*diffuse ,0.01f*diffuse ,0.01f*diffuse ,1.0f};
   float Specular[]  = {0.01f*specular,0.01f*specular,0.01f*specular,1.0f};
   //Light position
@@ -199,29 +205,24 @@ void display(GLFWwindow* window){
   skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
   glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
 
-  //Draw two flying jets
-  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
-  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
-
-  //What to draw
-  hangar->drawHangar(25,0,17.5,scale);
-  bomber->drawBomber(350,32,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
-  bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
-  myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
-  myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
-
-  glUseProgram(shader[0]);
-  mq9->drawMQ9(112,17,412,350,90,180,-25);
-  uh60->drawuh60(430,11.75,440,8,90,180,90);
-  glUseProgram(0);
-
   glDisable(GL_LIGHTING);
   if(drawAxis){
     drawAxisLines();
     drawAxisLabels();
   }
   glEnable(GL_LIGHTING);
-  
+
+  //Draw two flying jets
+  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+
+  //Draw only the hangar floor
+  hangar->drawHangarFloor(25,0,17.5,scale);
+
+  drawScene();
+
+  generateShadow(Position);
+
   //Text Display
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
@@ -293,6 +294,8 @@ int main(int argc, char* argv[]){
 
   reshape(window,width,height);
 
+  //GLFW does this automatically sets up sentcil buffer!
+
   //Callbacks
   glfwSetKeyCallback(window,key);
   glfwSetCursorPosCallback(window,mouseCallback);
@@ -323,7 +326,6 @@ int main(int argc, char* argv[]){
   char pixVert[] = "Shaders/pixtex.vert";
   char pixFrag[] = "Shaders/pixtex.frag";
   shader[0] = CreateShaderProg(pixVert,pixFrag);
-  S
   mq9 = new MQ9();
   hangar = new Hangar(shader,10);
   bomber = new XB70Bomber();
@@ -378,4 +380,75 @@ void centerWindow(GLFWwindow *window, GLFWmonitor *monitor)
   glfwSetWindowPos(window,
                     monitorX + (mode->width - windowWidth) / 2,
                     monitorY + (mode->height - windowHeight) / 2);
+}
+
+void drawScene(){
+  hangar->drawHangar(25,0,17.5,scale);
+
+  bomber->drawBomber(350,32,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
+  bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
+  myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
+  myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
+
+  glUseProgram(shader[0]);
+  mq9->drawMQ9(112,17,412,350,90,180,-25);
+  uh60->drawuh60(430,11.75,440,8,90,180,90);
+  glUseProgram(0);
+}
+
+void generateShadow(float Position[]){
+  //Save what is glEnabled
+  glPushAttrib(GL_ENABLE_BIT);
+   
+  glDisable(GL_LIGHTING);
+
+  //Enable stencil operations
+  glEnable(GL_STENCIL_TEST);
+
+  // ----------------------------------------------------------
+  // Step 1:  Set stencil buffer to 1 where there are shadows
+  // ----------------------------------------------------------
+
+  //Existing value of stencil buffer doesn't matter
+  glStencilFunc(GL_ALWAYS,1,0xFFFFFFFF);
+  //Set the value to 1 (REF=1 in StencilFunc)
+  //only if Z-buffer would allow write
+  glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
+  //Make Z-buffer and color buffer read-only (prevent update)
+  glDepthMask(0);
+  glColorMask(0,0,0,0);
+  //Draw flattened scene
+  glPushMatrix();
+  ShadowProjection(Position,E,N);
+  drawScene();
+  glPopMatrix();
+  //Make Z-buffer and color buffer read-write
+  glDepthMask(1);
+  glColorMask(1,1,1,1);
+
+  // ----------------------------------------------------------
+  //  Step 2:  Draw shadow masked by stencil buffer
+  // ----------------------------------------------------------
+
+  //Set the stencil test draw where stencil buffer is > 0
+  glStencilFunc(GL_LESS,0,0xFFFFFFFF);
+
+  //Make the stencil buffer read-only
+  glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+
+  //Enable blending
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  glColor4f(0,0,0,0.5);
+
+  //  Draw the shadow over the entire hangar floor
+  glBegin(GL_QUADS);
+    glVertex3f(50*scale,Yfloor,0);
+    glVertex3f(50*scale,Yfloor,35*scale);
+    glVertex3f(0,Yfloor,35*scale);
+    glVertex3f(0,Yfloor,0);
+  glEnd();
+    
+  //  Undo glEnables
+  glPopAttrib();
 }
