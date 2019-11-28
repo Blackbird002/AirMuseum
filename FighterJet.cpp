@@ -29,9 +29,9 @@ public:
  *    Rotation about X - roll (thx)
  *    Rotation about Z - pitch (thz) 
  */
-        void drawFighterJet(double x,double y,double z,
-                           double dx,double dy,double dz,
-                           double ux,double uy, double uz, double scale, double thx, double thz, bool landingGear)
+  void drawFighterJet(double x,double y,double z,
+                      double dx,double dy,double dz,
+                      double ux,double uy, double uz, double scale, double thx, double thz, bool landingGear)
 {
   int mode = 0;
   const double wid = 1;   //The "width of the plane's "Fuselage"

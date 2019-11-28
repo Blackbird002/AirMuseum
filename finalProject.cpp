@@ -7,6 +7,7 @@
 #include "FighterJet.cpp"
 #include "MQ9.cpp"
 #include "UH60.cpp"
+#include "F16.cpp"
 #include <iostream>
 #include <cstring>
 
@@ -38,6 +39,7 @@ XB70Bomber* bomber;
 FighterJet* myJet;
 MQ9* mq9;
 UH60* uh60;
+F16* f16;
 
 //Light values
 int one       =   1;  // Unit value
@@ -219,6 +221,8 @@ void display(GLFWwindow* window){
   //Draw only the hangar floor
   hangar->drawHangarFloor(25,0,17.5,scale);
 
+  //f16->drawF16(0,0,0,50,0,0,0,true);
+
   drawScene();
 
   generateShadow(Position);
@@ -331,6 +335,7 @@ int main(int argc, char* argv[]){
   bomber = new XB70Bomber();
   myJet = new FighterJet();
   uh60 = new UH60();
+  f16 = new F16();
 
   //Main event loop
   ErrCheck("init");
@@ -356,6 +361,7 @@ int main(int argc, char* argv[]){
   delete myJet;
   delete uh60;
   delete mq9;
+  delete f16;
 
   // ANSI C requires main to return int
   return 0;
@@ -393,6 +399,7 @@ void drawScene(){
   glUseProgram(shader[0]);
   mq9->drawMQ9(112,17,412,350,90,180,-25);
   uh60->drawuh60(430,11.75,440,8,90,180,90);
+  f16->drawF16(637.5,17,112.5,50,0,220,0,true);
   glUseProgram(0);
 }
 

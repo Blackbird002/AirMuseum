@@ -37,6 +37,7 @@ XB70Bomber.cpp.o: XB70Bomber.cpp CSCIx229.h
 FighterJet.cpp.o: FighterJet.cpp CSCIx229.h
 MQ9.cpp.o: MQ9.cpp CSCIx229.h
 UH60.cpp.o: UH60.cpp CSCIx229.h
+F16.cpp.o: F16.cpp CSCIx229.h
 
 # Compile rules
 .c.o:
@@ -45,7 +46,7 @@ UH60.cpp.o: UH60.cpp CSCIx229.h
 	g++ -c $(CFLG) $<
 
 #  Link
-finalProject:finalProject.o fatal.o loadtexbmp.o shaderFunctions.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o Hangar.o Camera.o XB70Bomber.o UH60.o FighterJet.o MQ9.o object.o
+finalProject:finalProject.o fatal.o loadtexbmp.o shaderFunctions.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o Hangar.o Camera.o XB70Bomber.o UH60.o FighterJet.o MQ9.o object.o F16.o
 	g++ -O3 -o $@ $^ Camera.cpp Hangar.cpp  -lglfw -lGLU -lGL -lm 
 
 #  Clean
