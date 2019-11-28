@@ -46,6 +46,7 @@ void hangarFloorRectangle(double x, double z);
 void planeTire(double x,double y,double z,double r);
 void drawLandingGear(double x,double y,double z, double h, double s);
 void drawLandingGearOneTire(double x,double y,double z, double h, double s);
+void drawLandingGearOneTireAngled(double x,double y,double z, double h, double s, double zOffset);
 void PrintShaderLog(int obj,char* file);
 void PrintProgramLog(int obj);
 int CreateShader(GLenum type,char* file);

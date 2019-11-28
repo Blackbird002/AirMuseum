@@ -395,3 +395,31 @@ void drawLandingGearOneTire(double x,double y,double z, double h, double s){
   glEnable(GL_LIGHTING);
 }
 
+/*
+ *  Draw angeled landing gear with one tire
+ *     at (x,y,z)
+ *     h is height going down from <x,y,z>
+ *     s is the scale
+ */
+void drawLandingGearOneTireAngled(double x,double y,double z, double h, double s, double zOffset){
+  glDisable (GL_LIGHTING);
+  glPushMatrix();
+  //  Offset
+  glTranslated(x,y,z);
+  glScaled(s,s,s);
+  
+  planeTire(0,0-h,zOffset,1);
+  glLineWidth(3);
+  glColor3d(0.5,0.5,0.5);
+  glBegin(GL_LINES);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0-h, zOffset);
+  glEnd();
+
+  glLineWidth(1);
+
+  //  Undo transformations
+  glPopMatrix();
+  glEnable(GL_LIGHTING);
+}
+
