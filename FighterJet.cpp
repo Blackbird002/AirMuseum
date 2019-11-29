@@ -329,8 +329,8 @@ public:
   // ----------------------------------------------------------
   if(landingGear){
     drawLandingGear(shipBowXend-2,-wid,0,5,0.5);
-    drawLandingGear(wingXend+3,-wid,-3,5,0.5);
-    drawLandingGear(wingXend+3,-wid,3,5,0.5);
+    drawLandingGearOneTireAngled(wingXend+3.5,-wid,1.5,5,0.5,1);
+    drawLandingGearOneTireAngled(wingXend+3.5,-wid,-1.5,5,0.5,-1);
   }
   
   //  Undo transformations

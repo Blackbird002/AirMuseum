@@ -498,9 +498,9 @@ void drawBomber(double x,double y,double z,
   // Landing Gear
   // ----------------------------------------------------------
   if(landGear){
-    drawLandingGear(frontFuselageXEnd+6,-shipWidth,0,5,1);
-    drawLandingGear(inletMiddleRearX+10,inletY,4,4,1);
-    drawLandingGear(inletMiddleRearX+10,inletY,-4,4,1);
+    drawLandingGear(frontFuselageXEnd+6,-shipWidth,0,6,1);
+    drawLandingGear(inletMiddleRearX+10,inletY,4,4.25,1);
+    drawLandingGear(inletMiddleRearX+10,inletY,-4,4.25,1);
   }
 
   //  Undo transformations
