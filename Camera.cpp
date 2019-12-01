@@ -189,21 +189,21 @@ public:
             return result;
 
         //Bottom left square
-        if(newX >= 4*scale && newX <= 11*scale && newZ >= 4*scale && newZ <=11*scale){result = false;}
+        if(newX >= 4*scale && newX <= 11*scale && newZ >= 4*scale && newZ <=11*scale){return false;}
         //Bottom right square
-        if(newX >= 4*scale && newX <= 11*scale && newZ >= 24*scale && newZ <=31*scale){result = false;}
+        else if(newX >= 4*scale && newX <= 11*scale && newZ >= 24*scale && newZ <=31*scale){return false;}
         //Top left square
-        if(newX >= 39*scale && newX <= 46*scale && newZ >= 4*scale && newZ <=11*scale){result = false;}
+        else if(newX >= 39*scale && newX <= 46*scale && newZ >= 4*scale && newZ <=11*scale){return false;}
         //Top right square
-        if(newX >= 39*scale && newX <= 46*scale && newZ >= 24*scale && newZ <=31*scale){result = false;}
+        else if(newX >= 39*scale && newX <= 46*scale && newZ >= 24*scale && newZ <=31*scale){return false;}
 
         //Left rectangle
-        if(newX >= 17*scale && newX <= 33*scale && newZ >= 3*scale && newZ <=9*scale){result = false;}
+        else if(newX >= 17*scale && newX <= 33*scale && newZ >= 3*scale && newZ <=9*scale){return false;}
         //Right rectangle
-        if(newX >= 17*scale && newX <= 33*scale && newZ >= 26*scale && newZ <=32*scale){result = false;}
+        else if(newX >= 17*scale && newX <= 33*scale && newZ >= 26*scale && newZ <=32*scale){return false;}
         //Center rectangle
-        if(newX >= 15*scale && newX <= 35*scale && newZ >= 13*scale && newZ <=22*scale){result = false;}
-        
-        return result;
+        else if(newX >= 15*scale && newX <= 35*scale && newZ >= 13*scale && newZ <=22*scale){return false;}
+        else 
+            return result;
     }  
 };

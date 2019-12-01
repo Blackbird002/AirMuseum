@@ -507,8 +507,6 @@ void drawBomber(double x,double y,double z,
   glPopMatrix();
 }
 
-
-
 private:
     unsigned int texture[5]; // Texture names
 };
