@@ -52,7 +52,11 @@ void PrintProgramLog(int obj);
 int CreateShader(GLenum type,char* file);
 int CreateShaderProg(char* VertFile,char* FragFile);
 void ShadowProjection(float L[4], float E[4], float N[4]);
+void Cylinder(float x,float y,float z ,float thx,float thy ,float r,float h);
 char* ReadText(char *file);
+void drawBoundaryPolesSquare(double x,double y,double z, double h);
+void drawBoundaryPolesRectangle(double x,double y,double z, double h);
+void drawBoundaryPolesCenter(double x,double y,double z, double h);
 void skyboxCube(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th, float emission, float shiny, unsigned int texture[]);

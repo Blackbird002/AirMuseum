@@ -423,3 +423,111 @@ void drawLandingGearOneTireAngled(double x,double y,double z, double h, double s
   glEnable(GL_LIGHTING);
 }
 
+/*
+ *  Draw a cylinder
+ *  at (x,y,z)
+ *  h is height
+ *  r is radius
+ *  s is scale
+ */
+void Cylinder(float x,float y,float z ,float thx,float thy ,float r,float h)
+{
+  int i,j;   // Counters
+  int N=4*8; // Number of slices
+
+  //  Transform
+  glPushMatrix();
+  glTranslated(x,y+h,z);
+  glRotated(thx,1,0,0);
+  glRotated(thy,0,1,0);
+  glScaled(r,r,h);
+
+  // wo end caps (fan of triangles)
+  for (j=-1;j<=1;j+=2)
+  {
+    glNormal3d(0,0,j); 
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2d(0,0); glVertex3d(0,0,j);
+    for (i=0;i<=N;i++)
+    {
+      float th = j*i*360.0/N;
+      glTexCoord2d(Cos(th),Sin(th)); glVertex3d(Cos(th),Sin(th),j);
+    }
+    glEnd();
+  }
+
+  //Cylinder Body (strip of quads)
+  glBegin(GL_QUADS);
+  for (i=0;i<N;i++)
+  {
+    float th0 =  i   *360.0/N;
+    float th1 = (i+1)*360.0/N;
+    glNormal3d(Cos(th0),Sin(th0),0); glTexCoord2d(0,th0/90.0); glVertex3d(Cos(th0),Sin(th0),+1);
+    glNormal3d(Cos(th0),Sin(th0),0); glTexCoord2d(2,th0/90.0); glVertex3d(Cos(th0),Sin(th0),-1);
+    glNormal3d(Cos(th1),Sin(th1),0); glTexCoord2d(2,th1/90.0); glVertex3d(Cos(th1),Sin(th1),-1);
+    glNormal3d(Cos(th1),Sin(th1),0); glTexCoord2d(0,th1/90.0); glVertex3d(Cos(th1),Sin(th1),+1);
+  }
+  glEnd();
+
+  //Restore
+  glPopMatrix();
+}
+
+void drawBoundaryPolesSquare(double x,double y,double z, double h){
+  glPushMatrix();
+  //  Offset
+  glTranslated(x-3.5,y,z-3.5);
+  glColor3d(1,1,1);
+  Cylinder(0,0,0,90,0,0.02,0.4);
+  Sphere(0,0.8,0,0.08,0,1);
+  Cylinder(0,0,7,90,0,0.02,0.4);
+  Sphere(0,0.8,7,0.08,0,1);
+  Cylinder(7,0,7,90,0,0.02,0.4);
+  Sphere(7,0.8,7,0.08,0,1);
+  Cylinder(7,0,0,90,0,0.02,0.4);
+  Sphere(7,0.8,0,0.08,0,1);
+  
+  //Restore
+  glPopMatrix();
+}
+
+void drawBoundaryPolesRectangle(double x,double y,double z, double h){
+  glPushMatrix();
+  //  Offset
+  glTranslated(x-8.0,y,z-3.0);
+  glColor3d(1,1,1);
+  Cylinder(0,0,0,90,0,0.02,0.4);
+  Sphere(0,0.8,0,0.08,0,1);
+  Cylinder(0,0,6,90,0,0.02,0.4);
+  Sphere(0,0.8,6,0.08,0,1);
+  Cylinder(16,0,6,90,0,0.02,0.4);
+  Sphere(16,0.8,6,0.08,0,1);
+  Cylinder(16,0,0,90,0,0.02,0.4);
+  Sphere(16,0.8,0,0.08,0,1);
+  
+  //Restore
+  glPopMatrix();
+}
+
+void drawBoundaryPolesCenter(double x,double y,double z, double h){
+  glPushMatrix();
+  //  Offset
+  glTranslated(x-9.5,y,z-5.0);
+  glColor3d(1,1,1);
+
+  Cylinder(0,0,0,90,0,0.02,0.4);
+  Sphere(0,0.8,0,0.08,0,1);
+
+  Cylinder(0,0,9,90,0,0.02,0.4);
+  Sphere(0,0.8,9,0.08,0,1);
+
+  Cylinder(20,0,9,90,0,0.02,0.4);
+  Sphere(20,0.8,9,0.08,0,1);
+
+  Cylinder(20,0,0,90,0,0.02,0.4);
+  Sphere(20,0.8,0,0.08,0,1);
+  
+  //Restore
+  glPopMatrix();
+}
+

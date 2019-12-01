@@ -13,6 +13,7 @@ public:
         texture[2] = LoadTexBMP("Textures/HangarTextures/hangarWall.bmp");
         texture[3] = LoadTexBMP("Textures/HangarTextures/hangarTopWall.bmp");
         texture[4] = LoadTexBMP("Textures/al.bmp");
+        texture[5] = LoadTexBMP("Textures/wood.bmp");
         for(int i =0; i < size; i++){
             shader[i] = shaderArray[i];
         }
@@ -33,6 +34,14 @@ public:
         hangarWidthWall(0, 0, 17.5,1);
         hangarWidthWall(50, 0, 17.5,-1);
         hangarRoof(25,10,0,1,0);
+        glBindTexture(GL_TEXTURE_2D, texture[5]);
+        drawBoundaryPolesSquare(7.5,0,7.5,20);
+        drawBoundaryPolesSquare(7.5,0,27.5,20);
+        drawBoundaryPolesSquare(42.5,0,7.5,20);
+        drawBoundaryPolesSquare(42.5,0,27.5,20);
+        drawBoundaryPolesRectangle(25,0,6,20);
+        drawBoundaryPolesRectangle(25,0,29,20);
+        drawBoundaryPolesCenter(25,0,17.5,20);
 
         //  Undo transofrmations
         glPopMatrix();

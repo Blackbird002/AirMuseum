@@ -14,7 +14,7 @@
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
-bool drawAxis = true;
+bool drawAxis = false;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
 double scale = 15;
@@ -94,14 +94,14 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
   if (key == GLFW_KEY_ESCAPE)
     glfwSetWindowShouldClose(window,1);
   else if (key==GLFW_KEY_RIGHT)
-    camera->th += 2.5;
+    camera->th += 2;
   else if (key==GLFW_KEY_LEFT)
-    camera->th -= 2.5;
+    camera->th -= 2;
   //  Increase/decrease elevation
   else if (key==GLFW_KEY_UP)
-    camera->ph += 2.5;
+    camera->ph += 2;
   else if (key==GLFW_KEY_DOWN)
-    camera->ph -= 2.5;
+    camera->ph -= 2;
 
   //Moving camera only in First person & FOV
   if (projectionMode == 1){
@@ -221,8 +221,6 @@ void display(GLFWwindow* window){
   //Draw only the hangar floor
   hangar->drawHangarFloor(25,0,17.5,scale);
 
-  //f16->drawF16(0,0,0,50,0,0,0,true);
-
   drawScene();
 
   generateShadow(Position);
@@ -231,7 +229,6 @@ void display(GLFWwindow* window){
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
   glWindowPos2i(5,65);
-  Print("Camera Look: [%.1f ,%.1f ,%.1f]", camera->cameraLookX, camera->cameraLookY, camera->cameraLookZ);
 
   glWindowPos2i(5,85);
   if(drawAxis == true)
@@ -240,12 +237,13 @@ void display(GLFWwindow* window){
     Print("Axis OFF");
 
   glWindowPos2i(5,105);
-  Print("Camera: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
+  Print("Camera Position: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
 
   //Render the scene and make it visible
   ErrCheck("display");
   glFlush();
   glfwSwapBuffers(window);
+  glfwPollEvents();
 }
 
 void reshape(GLFWwindow* window,int width,int height)
@@ -279,7 +277,7 @@ int main(int argc, char* argv[]){
   glfwWindowHint(GLFW_DOUBLEBUFFER,1);
 
   //  Create window and make current
-  window = glfwCreateWindow(1280,720, "Riad Shash (Ray) - GLFW", nullptr, nullptr);
+  window = glfwCreateWindow(1280,720, "Riad Shash (Ray) Final Project - GLFW", nullptr, nullptr);
   if (!window) Fatal("Cannot create GLFW window\n");
 
   //Center the GLFW window
@@ -343,7 +341,7 @@ int main(int argc, char* argv[]){
   {
     //  Elapsed time in seconds
     double t = glfwGetTime();
-    zh = fmod(90*t,360.0);
+    zh = fmod(30*t,360.0);
     th = fmod(45*t,360.0);
     //  Display
     display(window);
@@ -391,15 +389,19 @@ void centerWindow(GLFWwindow *window, GLFWmonitor *monitor)
 void drawScene(){
   hangar->drawHangar(25,0,17.5,scale);
 
-  bomber->drawBomber(350,32,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
+  
   bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
   myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
+  
   myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
+  myJet->drawFighterJet(615,15.75,390,-1,0,-1,0,1,0,4,0,0,true);
 
   glUseProgram(shader[0]);
-  mq9->drawMQ9(112,17,412,350,90,180,-25);
-  uh60->drawuh60(430,11.75,440,8,90,180,90);
-  f16->drawF16(637.5,17,112.5,50,0,220,0,true);
+  mq9->drawMQ9(112,15,412,350,90,180,-25);
+  uh60->drawuh60(420,12.3,440,8,90,180,90);
+  bomber->drawBomber(380,31,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
+  f16->drawF16(637.5,19,112.5,55,0,220,0,true);
+  f16->drawF16(262,150,262,50,0,-40,20,false);
   glUseProgram(0);
 }
 
