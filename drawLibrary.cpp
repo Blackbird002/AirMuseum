@@ -508,3 +508,26 @@ void drawBoundaryPolesRectangle(double x,double y,double z, double h){
   //Restore
   glPopMatrix();
 }
+
+void drawBoundaryPolesCenter(double x,double y,double z, double h){
+  glPushMatrix();
+  //  Offset
+  glTranslated(x-9.5,y,z-5.0);
+  glColor3d(1,1,1);
+
+  Cylinder(0,0,0,90,0,0.02,0.4);
+  Sphere(0,0.8,0,0.08,0,1);
+
+  Cylinder(0,0,9,90,0,0.02,0.4);
+  Sphere(0,0.8,9,0.08,0,1);
+
+  Cylinder(20,0,9,90,0,0.02,0.4);
+  Sphere(20,0.8,9,0.08,0,1);
+
+  Cylinder(20,0,0,90,0,0.02,0.4);
+  Sphere(20,0.8,0,0.08,0,1);
+  
+  //Restore
+  glPopMatrix();
+}
+

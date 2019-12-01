@@ -41,6 +41,7 @@ public:
         drawBoundaryPolesSquare(42.5,0,27.5,20);
         drawBoundaryPolesRectangle(25,0,6,20);
         drawBoundaryPolesRectangle(25,0,29,20);
+        drawBoundaryPolesCenter(25,0,17.5,20);
 
         //  Undo transofrmations
         glPopMatrix();
