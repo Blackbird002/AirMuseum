@@ -121,7 +121,6 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
     }
   }
   
-  glfwPollEvents();
   // Reproject
   Project(fov, asp, camera->dim, projectionMode);
 }
@@ -244,6 +243,7 @@ void display(GLFWwindow* window){
   ErrCheck("display");
   glFlush();
   glfwSwapBuffers(window);
+  glfwPollEvents();
 }
 
 void reshape(GLFWwindow* window,int width,int height)
