@@ -14,7 +14,7 @@
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
-bool drawAxis = false;
+bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
 double scale = 15;
@@ -23,7 +23,7 @@ double scale = 15;
   1 - First person 
   2 - Perspective (starts in perspective mode)
 */
-int projectionMode = 1;     
+int projectionMode = 2;     
 
 double THX;
 double THZ;
@@ -204,7 +204,7 @@ void display(GLFWwindow* window){
   glLightfv(GL_LIGHT0,GL_POSITION,Position);
 
   glLightfv(GL_LIGHT0,GL_AMBIENT , AmbientHigh);
-  skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+  //skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
   glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
 
   glDisable(GL_LIGHTING);
@@ -215,15 +215,16 @@ void display(GLFWwindow* window){
   glEnable(GL_LIGHTING);
 
   //Draw two flying jets
-  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
-  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  //myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  //myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
 
   //Draw only the hangar floor
-  hangar->drawHangarFloor(25,0,17.5,scale);
+  //hangar->drawHangarFloor(25,0,17.5,scale);
 
-  drawScene();
+  //drawScene();
+  myJet->drawFighterJet(0,0,0,1,0,0,0,1,0,4,0,0,false);
 
-  generateShadow(Position);
+  //generateShadow(Position);
 
   //Text Display
   glColor3f(0,1,0);

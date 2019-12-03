@@ -8,13 +8,13 @@ public:
     float emission  =   0;  // Emission intensity (%)
 
     FighterJet(){
-        //  Load textures
-        texture[0] = LoadTexBMP("Textures/WhiteMetal.bmp");
-        texture[1] = LoadTexBMP("Textures/MetalUs.bmp");
-        texture[2] = LoadTexBMP("Textures/al.bmp");
-        texture[3] = LoadTexBMP("Textures/glass.bmp");
-        texture[4] = LoadTexBMP("Textures/engineTexture.bmp");
-        texture[5] = LoadTexBMP("Textures/imageBurner.bmp");
+      //  Load textures
+      texture[0] = LoadTexBMP("Textures/WhiteMetal.bmp");
+      texture[1] = LoadTexBMP("Textures/MetalUs.bmp");
+      texture[2] = LoadTexBMP("Textures/al.bmp");
+      texture[3] = LoadTexBMP("Textures/glass.bmp");
+      texture[4] = LoadTexBMP("Textures/engineTexture.bmp");
+      texture[5] = LoadTexBMP("Textures/imageBurner.bmp");
     }
 
 // ----------------------------------------------------------
@@ -34,7 +34,7 @@ public:
                       double ux,double uy, double uz, double scale, double thx, double thz, bool landingGear)
 {
   int mode = 0;
-  const double wid = 1;   //The "width of the plane's "Fuselage"
+  const double wid = 0.8;   //The "width of the plane's "Fuselage"
   const double shipBowXfront = 0;    //X of front nose
   const double shipBowXend = -4;     //X of end nose
   const double shipSternX = -20;    //X end of ship
@@ -53,6 +53,9 @@ public:
   const double wingLinefrontX = -16;
   const double wingLineXend = -20;
   const double wingLineZ = wingZ;
+
+  const double inletZ = 0.5;
+  const double inletXlength = 3.25;
   
   //  Unit vector in direction of flght
   double D0 = sqrt(dx*dx+dy*dy+dz*dz);
@@ -149,6 +152,58 @@ public:
   glLineWidth(1);
 
   // ----------------------------------------------------------
+  // Inlets
+  // ---------------------------------------------------------
+
+  
+  glBegin(GL_QUADS);
+    //Right side out
+    glNormal3d(0,0,1);
+    glVertex3d(shipBowXend, wid, wid+inletZ);
+    glVertex3d(shipBowXend, -wid, wid+inletZ);
+    glVertex3d(shipBowXend-inletXlength, -wid, wid+inletZ);
+    glVertex3d(shipBowXend-inletXlength, wid, wid+inletZ);
+
+    //Right side bottom
+    glNormal3d(0,-1,0);
+    glVertex3d(shipBowXend, -wid, wid);
+    glVertex3d(shipBowXend-inletXlength, -wid, wid);
+    glVertex3d(shipBowXend-inletXlength, -wid, wid+inletZ);
+    glVertex3d(shipBowXend, -wid, wid+inletZ);
+
+    //Right side top
+    glNormal3d(0,1,0);
+    glVertex3d(shipBowXend, wid, wid);
+    glVertex3d(shipBowXend-inletXlength, wid, wid);
+    glVertex3d(shipBowXend-inletXlength, wid, wid+inletZ);
+    glVertex3d(shipBowXend, wid, wid+inletZ); 
+
+    //Left side top
+    glNormal3d(0,1,0);
+    glVertex3d(shipBowXend, wid, -wid);
+    glVertex3d(shipBowXend-inletXlength, wid, -wid);
+    glVertex3d(shipBowXend-inletXlength, wid, -wid-inletZ);
+    glVertex3d(shipBowXend, wid, -wid-inletZ);    
+   
+    //Left side bottom
+    glNormal3d(0,-1,0);
+    glVertex3d(shipBowXend, -wid, -wid);
+    glVertex3d(shipBowXend-inletXlength, -wid, -wid);
+    glVertex3d(shipBowXend-inletXlength, -wid, -wid-inletZ);
+    glVertex3d(shipBowXend, -wid, -wid-inletZ);
+  glEnd();
+
+  //Left side out
+  glBegin(GL_QUADS);
+    glNormal3d(0,0,-1);
+    glVertex3d(shipBowXend, wid, -wid-inletZ);
+    glVertex3d(shipBowXend, -wid, -wid-inletZ);
+    glVertex3d(shipBowXend-inletXlength, -wid, -wid-inletZ);
+     glVertex3d(shipBowXend-inletXlength, wid, -wid-inletZ);
+  glEnd();
+
+
+  // ----------------------------------------------------------
   // Fuselage
   // ---------------------------------------------------------
   glBindTexture(GL_TEXTURE_2D,texture[0]);
@@ -190,7 +245,7 @@ public:
   // ---------------------------------------------------------
   glColor3f(1,1,1);
   glBindTexture(GL_TEXTURE_2D,texture[3]);
-  Sphere(cockpitX,cockpitY,0,0.9, emission, shiny);
+  Sphere(cockpitX,cockpitY,0,0.7, emission, shiny);
 
   // ----------------------------------------------------------
   // Canards
@@ -319,10 +374,10 @@ public:
   // Rear engine
   // ----------------------------------------------------------
   glBindTexture(GL_TEXTURE_2D,texture[4]);
-  engineSphere(shipSternX,0,0,1,-90, emission, shiny);
+  engineSphere(shipSternX,0,0,0.8,-90, emission, shiny);
 
   glBindTexture(GL_TEXTURE_2D,texture[5]);
-  disk(shipSternX-1-0.01,0,0,1,90);
+  disk(shipSternX-1-0.01,0,0,0.8,90);
 
   // ----------------------------------------------------------
   // Landing Gear
@@ -336,7 +391,6 @@ public:
   //  Undo transformations
   glPopMatrix();
 }
-
 
 private:
     unsigned int texture[10]; // Texture names
