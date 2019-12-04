@@ -23,7 +23,7 @@ double scale = 15;
   1 - First person 
   2 - Perspective (starts in perspective mode)
 */
-int projectionMode = 2;     
+int projectionMode = 1;     
 
 double THX;
 double THZ;
@@ -204,7 +204,7 @@ void display(GLFWwindow* window){
   glLightfv(GL_LIGHT0,GL_POSITION,Position);
 
   glLightfv(GL_LIGHT0,GL_AMBIENT , AmbientHigh);
-  //skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
+  skyboxCube(200,0,200,900,900,900,0, 0, 0, texture);  
   glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
 
   glDisable(GL_LIGHTING);
@@ -215,16 +215,16 @@ void display(GLFWwindow* window){
   glEnable(GL_LIGHTING);
 
   //Draw two flying jets
-  //myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
-  //myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
 
   //Draw only the hangar floor
-  //hangar->drawHangarFloor(25,0,17.5,scale);
+  hangar->drawHangarFloor(25,0,17.5,scale);
 
-  //drawScene();
-  myJet->drawFighterJet(0,0,0,1,0,0,0,1,0,4,0,0,false);
+  drawScene();
+  //myJet->drawFighterJet(0,0,0,1,0,0,0,1,0,7,0,0,false);
 
-  //generateShadow(Position);
+  generateShadow(Position);
 
   //Text Display
   glColor3f(0,1,0);
@@ -265,7 +265,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(550,13,250,200,15,false);
+  camera = new Camera(550,16,250,200,15,false);
 
   //Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -394,8 +394,8 @@ void drawScene(){
   bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
   myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
   
-  myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
-  myJet->drawFighterJet(615,15.75,390,-1,0,-1,0,1,0,4,0,0,true);
+  myJet->drawFighterJet(125,13.75,145,1,0,1,0,1,0,4,0,0, true);
+  myJet->drawFighterJet(615,13.75,390,-1,0,-1,0,1,0,4,0,0,true);
 
   glUseProgram(shader[0]);
   mq9->drawMQ9(112,15,412,350,90,180,-25);
