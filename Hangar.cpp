@@ -121,17 +121,20 @@ private:
             }
         glEnd();
 
-        glColor3f(0.3,0.3,0.3);
+        glColor3f(0.5,0.5,0.5);
         //  Enable blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+        glBindTexture(GL_TEXTURE_2D, texture[4]);
     
+        //Top cover (roof) of hangar
         glBegin(GL_QUAD_STRIP);
             glTexCoord2f(0,0);
             glNormal3d(0,-1,0);
             for(int k=0;k<=180;k+=10){
-                glVertex3f(25*Cos(k),7*Sin(k),0);
-                glVertex3f(25*Cos(k),7*Sin(k),35);
+                glTexCoord2f(0.1*k,0);glVertex3f(25*Cos(k),7*Sin(k),0);
+                glTexCoord2f(0.1*k,1);glVertex3f(25*Cos(k),7*Sin(k),35);
             }
         glEnd();
         //Disable blending

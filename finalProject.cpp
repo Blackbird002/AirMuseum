@@ -14,7 +14,7 @@
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
-bool drawAxis = false;
+bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
 double scale = 15;
@@ -182,7 +182,7 @@ void display(GLFWwindow* window){
   //Light position
   float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
   //Draw light position as ball (still no lighting here)
-  glColor3f(1,1,1);
+  glColor3f(1,1,0);
   ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
   //OpenGL should normalize normal vectors
   glEnable(GL_NORMALIZE);
@@ -222,6 +222,7 @@ void display(GLFWwindow* window){
   hangar->drawHangarFloor(25,0,17.5,scale);
 
   drawScene();
+  //myJet->drawFighterJet(0,0,0,1,0,0,0,1,0,7,0,0,false);
 
   generateShadow(Position);
 
@@ -264,7 +265,7 @@ int main(int argc, char* argv[]){
   int width,height;
   GLFWwindow* window;
 
-  camera = new Camera(550,13,250,200,15,false);
+  camera = new Camera(550,16,250,200,15,false);
 
   //Initialize GLFW
   if (!glfwInit()) Fatal("Cannot initialize glfw\n");
@@ -393,8 +394,8 @@ void drawScene(){
   bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
   myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
   
-  myJet->drawFighterJet(125,15.75,145,1,0,1,0,1,0,4,0,0, true);
-  myJet->drawFighterJet(615,15.75,390,-1,0,-1,0,1,0,4,0,0,true);
+  myJet->drawFighterJet(125,13.75,145,1,0,1,0,1,0,4,0,0, true);
+  myJet->drawFighterJet(615,13.75,390,-1,0,-1,0,1,0,4,0,0,true);
 
   glUseProgram(shader[0]);
   mq9->drawMQ9(112,15,412,350,90,180,-25);

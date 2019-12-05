@@ -15,7 +15,7 @@ void disk(double x,double y,double z,double r, double th)
   glPushMatrix();
   //  Offset and scale
   glTranslated(x,y,z);
-    glRotated(th,0,1,0);
+  glRotated(th,0,1,0);
   glScaled(r,r,r);
   //  Head & Tail
   glColor3f(1,1,1);
@@ -334,7 +334,7 @@ void planeTire(double x,double y,double z, double r){
 
   //  Undo transformations
   glPopMatrix();
-  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_2D);
 }
 
 /*
