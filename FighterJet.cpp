@@ -75,17 +75,17 @@ public:
   double Y2 = Z0*X1-Z1*X0;
   double Z2 = X0*Y1-X1*Y0;
 
+  //For normal vector calculations
+  double aX, aY, aZ;
+  double bX, bY, bZ;
+  double nX, nY, nZ;
+
   //  Rotation matrix
   double mat[16];
   mat[0] = X0;   mat[4] = X1;   mat[ 8] = X2;   mat[12] = 0;
   mat[1] = Y0;   mat[5] = Y1;   mat[ 9] = Y2;   mat[13] = 0;
   mat[2] = Z0;   mat[6] = Z1;   mat[10] = Z2;   mat[14] = 0;
   mat[3] =  0;   mat[7] =  0;   mat[11] =  0;   mat[15] = 1;
-
-  //For normal vector calculations
-  double aX, aY, aZ;
-  double bX, bY, bZ;
-  double nX, nY, nZ;
 
   //  Enable textures
   glEnable(GL_TEXTURE_2D);
@@ -254,8 +254,11 @@ public:
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1);
 
   glBegin(GL_POLYGON);
-    //Right Canard 
-    glNormal3d(0,1,0);
+    //Right Canard
+    findDispVector(canardXfront, -0.30, inletZ+wid, canardXend+1, 0, inletZ+wid, &aX, &aY, &aZ);
+    findDispVector(canardXend, 0.30, inletZ+canardZ, canardXend+1, 0.30, inletZ+canardZ, &bX, &bY, &bZ);
+    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ); 
+    glNormal3d(nX,nY,nZ);
     glTexCoord2f(0,1);glVertex3d(canardXfront, -0.30, inletZ+wid);
     glTexCoord2f(0,0.2);glVertex3d(canardXend+1, 0, inletZ+wid);
     glTexCoord2f(1,0);glVertex3d(canardXend, 0.30, inletZ+canardZ);
@@ -264,7 +267,10 @@ public:
 
   //Left Canard 
   glBegin(GL_POLYGON);
-    glNormal3d(0,1,0);
+    findDispVector(canardXend+1, 0.30,-inletZ-canardZ,canardXend, 0.30,-inletZ-canardZ, &aX, &aY, &aZ);
+    findDispVector(canardXend+1, 0, -inletZ-wid, canardXfront, -0.30,-inletZ-wid, &bX, &bY, &bZ);
+    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ); 
+    glNormal3d(nX,nY,nZ);
     glTexCoord2f(1,0.2);glVertex3d(canardXend+1, 0.30,-inletZ-canardZ);
     glTexCoord2f(1,0);glVertex3d(canardXend, 0.30,-inletZ-canardZ);
     glTexCoord2f(0,0.2);glVertex3d(canardXend+1, 0, -inletZ-wid);
@@ -408,7 +414,10 @@ public:
 
   //Left side
   glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
+    findDispVector(wingXend,wid,-totalFuselageZ,wingXend,-wid,-totalFuselageZ, &aX, &aY, &aZ);
+    findDispVector(wingXend,-wid,-totalFuselageZ, shipSternX,-wid,-wid, &bX, &bY, &bZ);
+    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ); 
+    glNormal3d(nX,nY,nZ);
     glTexCoord2f(0,0.5);glVertex3d(wingXend,wid,-totalFuselageZ);
     glTexCoord2f(0,0);glVertex3d(wingXend,-wid,-totalFuselageZ);
     glTexCoord2f(0.5,0);glVertex3d(shipSternX,-wid,-wid);
@@ -417,7 +426,10 @@ public:
 
   //Right side
   glBegin(GL_POLYGON);
-    glNormal3d(0,-1,0);
+    findDispVector(wingXend,wid,totalFuselageZ,wingXend,-wid,totalFuselageZ, &aX, &aY, &aZ);
+    findDispVector(wingXend,-wid,totalFuselageZ,shipSternX,-wid,wid, &bX, &bY, &bZ);
+    findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ); 
+    glNormal3d(nX,nY,-nZ);
     glTexCoord2f(0,0.5);glVertex3d(wingXend,wid,totalFuselageZ);
     glTexCoord2f(0,0);glVertex3d(wingXend,-wid,totalFuselageZ);
     glTexCoord2f(0.5,0);glVertex3d(shipSternX,-wid,wid);

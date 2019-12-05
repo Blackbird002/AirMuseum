@@ -182,7 +182,7 @@ void display(GLFWwindow* window){
   //Light position
   float Position[]  = {350+distance*Cos(zh),ylight,250+distance*Sin(zh),1.0};
   //Draw light position as ball (still no lighting here)
-  glColor3f(1,1,1);
+  glColor3f(1,1,0);
   ball(Position[0],Position[1],Position[2] ,0.5,emission,shiny,inc);
   //OpenGL should normalize normal vectors
   glEnable(GL_NORMALIZE);
