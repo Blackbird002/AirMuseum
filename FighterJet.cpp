@@ -3,19 +3,19 @@
 class FighterJet{
 public: 
 
-    int shininess =   0;  // Shininess (power of two)
-    float shiny   =   1;  // Shininess (value)
-    float emission  =   0;  // Emission intensity (%)
+  int shininess =   0;  // Shininess (power of two)
+  float shiny   =   1;  // Shininess (value)
+  float emission  =   0;  // Emission intensity (%)
 
-    FighterJet(){
-      //  Load textures
-      texture[0] = LoadTexBMP("Textures/WhiteMetal.bmp");
-      texture[1] = LoadTexBMP("Textures/MetalUs.bmp");
-      texture[2] = LoadTexBMP("Textures/al.bmp");
-      texture[3] = LoadTexBMP("Textures/glass.bmp");
-      texture[4] = LoadTexBMP("Textures/engineTexture.bmp");
-      texture[5] = LoadTexBMP("Textures/imageBurner.bmp");
-    }
+  FighterJet(){
+    //  Load textures
+    texture[0] = LoadTexBMP("Textures/WhiteMetal.bmp");
+    texture[1] = LoadTexBMP("Textures/MetalUs.bmp");
+    texture[2] = LoadTexBMP("Textures/al.bmp");
+    texture[3] = LoadTexBMP("Textures/glass.bmp");
+    texture[4] = LoadTexBMP("Textures/engineTexture.bmp");
+    texture[5] = LoadTexBMP("Textures/imageBurner.bmp");
+  }
 
 // ----------------------------------------------------------
 //  FighterJet
@@ -55,7 +55,6 @@ public:
   const double wingLineZ = wingZ;
 
   const double inletZ = 0.5;
-  const double inletXlength = 2.25;
   const double totalFuselageZ = wid + inletZ;
   
   //  Unit vector in direction of flght

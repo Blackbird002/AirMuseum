@@ -8,6 +8,7 @@
 #include "MQ9.cpp"
 #include "UH60.cpp"
 #include "F16.cpp"
+#include "Mi28.cpp"
 #include <iostream>
 #include <cstring>
 
@@ -40,6 +41,7 @@ FighterJet* myJet;
 MQ9* mq9;
 UH60* uh60;
 F16* f16;
+Mi28* mi28;
 
 //Light values
 int one       =   1;  // Unit value
@@ -287,7 +289,7 @@ int main(int argc, char* argv[]){
   glfwMakeContextCurrent(window);
 
   //Enable VSYNC
-  glfwSwapInterval(1);
+  glfwSwapInterval(0);
 
   //Set callback for window resize
   glfwSetWindowSizeCallback(window,reshape);
@@ -335,6 +337,7 @@ int main(int argc, char* argv[]){
   myJet = new FighterJet();
   uh60 = new UH60();
   f16 = new F16();
+  mi28 = new Mi28();
 
   //Main event loop
   ErrCheck("init");
@@ -361,6 +364,7 @@ int main(int argc, char* argv[]){
   delete uh60;
   delete mq9;
   delete f16;
+  delete mi28;
 
   // ANSI C requires main to return int
   return 0;
@@ -403,6 +407,12 @@ void drawScene(){
   bomber->drawBomber(380,31,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
   f16->drawF16(637.5,19,112.5,55,0,220,0,true);
   f16->drawF16(262,150,262,50,0,-40,20,false);
+  
+  glPushMatrix();
+  glRotated(20,0,0,1);
+  glPopMatrix();
+  mi28->drawMi28(375,15.50,90,18,0,90,-4.5);
+  
   glUseProgram(0);
 }
 
