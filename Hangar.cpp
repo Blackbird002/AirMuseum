@@ -35,13 +35,13 @@ public:
         hangarWidthWall(50, 0, 17.5,-1);
         hangarRoof(25,10,0,1,0);
         glBindTexture(GL_TEXTURE_2D, texture[5]);
-        drawBoundaryPolesSquare(7.5,0,7.5,20);
-        drawBoundaryPolesSquare(7.5,0,27.5,20);
-        drawBoundaryPolesSquare(42.5,0,7.5,20);
-        drawBoundaryPolesSquare(42.5,0,27.5,20);
-        drawBoundaryPolesRectangle(25,0,6,20);
-        drawBoundaryPolesRectangle(25,0,29,20);
-        drawBoundaryPolesCenter(25,0,17.5,20);
+        drawBoundaryPolesSquare(7.5,0,7.5,22,shader);
+        drawBoundaryPolesSquare(7.5,0,27.5,22,shader);
+        drawBoundaryPolesSquare(42.5,0,7.5,22,shader);
+        drawBoundaryPolesSquare(42.5,0,27.5,22,shader);
+        drawBoundaryPolesRectangle(25,0,6,22,shader);
+        drawBoundaryPolesRectangle(25,0,29,22,shader);
+        drawBoundaryPolesCenter(25,0,17.5,22,shader);
 
         //  Undo transofrmations
         glPopMatrix();

@@ -388,7 +388,7 @@ void drawLandingGearOneTire(double x,double y,double z, double h, double s){
     glVertex3f(0, 0-h, 0);
   glEnd();
 
-  glLineWidth(1);
+  glLineWidth(1.5);
 
   //  Undo transformations
   glPopMatrix();
@@ -473,7 +473,7 @@ void Cylinder(float x,float y,float z ,float thx,float thy ,float r,float h)
   glPopMatrix();
 }
 
-void drawBoundaryPolesSquare(double x,double y,double z, double h){
+void drawBoundaryPolesSquare(double x,double y,double z, double h, int shader[]){
   glPushMatrix();
   //  Offset
   glTranslated(x-3.5,y,z-3.5);
@@ -487,11 +487,20 @@ void drawBoundaryPolesSquare(double x,double y,double z, double h){
   Cylinder(7,0,0,90,0,0.02,0.4);
   Sphere(7,0.8,0,0.08,0,1);
   
+  glUseProgram(0);
+  glDisable(GL_LIGHTING);
+  drawBoundaryRope(0,0.8,3.5,90,3.5,0.5);
+  drawBoundaryRope(7,0.8,3.5,90,3.5,0.5);
+  drawBoundaryRope(3.5,0.8,0,180,3.5,0.5);
+  drawBoundaryRope(3.5,0.8,7,180,3.5,0.5);
+  glEnable(GL_LIGHTING);
+  glUseProgram(shader[1]);
+
   //Restore
   glPopMatrix();
 }
 
-void drawBoundaryPolesRectangle(double x,double y,double z, double h){
+void drawBoundaryPolesRectangle(double x,double y,double z, double h, int shader[]){
   glPushMatrix();
   //  Offset
   glTranslated(x-8.0,y,z-3.0);
@@ -504,12 +513,21 @@ void drawBoundaryPolesRectangle(double x,double y,double z, double h){
   Sphere(16,0.8,6,0.08,0,1);
   Cylinder(16,0,0,90,0,0.02,0.4);
   Sphere(16,0.8,0,0.08,0,1);
-  
+
+  glUseProgram(0);
+  glDisable(GL_LIGHTING);
+  drawBoundaryRope(0,0.8,3,90,3,0.4);
+  drawBoundaryRope(16,0.8,3,90,3,0.4);
+  drawBoundaryRope(8,0.8,0,180,8,0.4);
+  drawBoundaryRope(8,0.8,6,180,8,0.4);
+  glEnable(GL_LIGHTING);
+  glUseProgram(shader[1]);
+
   //Restore
   glPopMatrix();
 }
 
-void drawBoundaryPolesCenter(double x,double y,double z, double h){
+void drawBoundaryPolesCenter(double x,double y,double z, double h, int shader[]){
   glPushMatrix();
   //  Offset
   glTranslated(x-9.5,y,z-5.0);
@@ -526,7 +544,35 @@ void drawBoundaryPolesCenter(double x,double y,double z, double h){
 
   Cylinder(20,0,0,90,0,0.02,0.4);
   Sphere(20,0.8,0,0.08,0,1);
+
+  glUseProgram(0);
+  glDisable(GL_LIGHTING);
+  drawBoundaryRope(0,0.8,4.5,90,4.5,0.4);
+  drawBoundaryRope(20,0.8,4.5,90,4.5,0.4);
+  drawBoundaryRope(10,0.8,0,180,10,0.5);
+  drawBoundaryRope(10,0.8,9,180,10,0.5);
+  glEnable(GL_LIGHTING);
+  glUseProgram(shader[1]);
   
+  //Restore
+  glPopMatrix();
+}
+
+void drawBoundaryRope(double x,double y,double z, double thY, double xOffset, double yOffset){
+  glPushMatrix();
+  //  Offset
+  glTranslated(x,y,z);
+  glRotated(thY,0,1,0);
+  glColor3d(1,0,0); 
+
+  glLineWidth(3);
+  glBegin(GL_LINE_STRIP);
+    for(int k=180;k<=360;k+=5){
+      glVertex3f(xOffset*Cos(k),yOffset*Sin(k),0);
+    }
+  glEnd();
+  glColor3d(1,1,1);
+
   //Restore
   glPopMatrix();
 }

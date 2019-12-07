@@ -5,7 +5,7 @@ public:
 
   int shininess =   0;  // Shininess (power of two)
   float shiny   =   1;  // Shininess (value)
-  float emission  =   0;  // Emission intensity (%)
+  float emission  =   5;  // Emission intensity (%)
 
   FighterJet(){
     //  Load textures

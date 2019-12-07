@@ -11,6 +11,7 @@
 #include "Mi28.cpp"
 #include <iostream>
 #include <cstring>
+#include <thread>
 
 // ----------------------------------------------------------
 // Global Variables
@@ -18,22 +19,20 @@
 bool drawAxis = true;
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
-double scale = 15;
+double scale = 15;  //Scale of the hangar
 
 /*
   1 - First person 
   2 - Perspective (starts in perspective mode)
 */
 int projectionMode = 1;     
-
 double THX;
 double THZ;
-
 unsigned int texture[12]; // Texture names
-
 double previousMouseY;
 double previousMouseX;
 
+//Pointers to objects
 Camera* camera;
 Hangar* hangar;
 XB70Bomber* bomber;
@@ -61,6 +60,7 @@ int th        = 90;
 float ylight  =   80;  // Elevation of light
 bool light = true;
 
+//Shaders
 int shader[10] = {0,0};
 
 float Ambient[]   = {0.01f*ambient ,0.01f*ambient ,0.01f*ambient ,1.0f};
@@ -82,6 +82,9 @@ void error(int error, const char* text);
 void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
 void drawScene();
 void generateShadow(float Position[]);
+void drawFlyingFighterJets();
+void drawLabels();
+
 // ----------------------------------------------------------
 // key() Callback function
 // ----------------------------------------------------------
@@ -214,31 +217,20 @@ void display(GLFWwindow* window){
     drawAxisLines();
     drawAxisLabels();
   }
+  drawLabels();
   glEnable(GL_LIGHTING);
 
-  //Draw two flying jets
-  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
-  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  drawFlyingFighterJets();
 
   //Draw only the hangar floor
   hangar->drawHangarFloor(25,0,17.5,scale);
 
   drawScene();
-  //myJet->drawFighterJet(0,0,0,1,0,0,0,1,0,7,0,0,false);
 
   generateShadow(Position);
 
   //Text Display
   glColor3f(0,1,0);
-  glWindowPos2i(5,5);
-  glWindowPos2i(5,65);
-
-  glWindowPos2i(5,85);
-  if(drawAxis == true)
-    Print("Axis ON");
-  else
-    Print("Axis OFF");
-
   glWindowPos2i(5,105);
   Print("Camera Position: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
 
@@ -299,7 +291,7 @@ int main(int argc, char* argv[]){
 
   reshape(window,width,height);
 
-  //GLFW does this automatically sets up sentcil buffer!
+  //GLFW automatically sets up sentcil buffer!
 
   //Callbacks
   glfwSetKeyCallback(window,key);
@@ -331,6 +323,8 @@ int main(int argc, char* argv[]){
   char pixVert[] = "Shaders/pixtex.vert";
   char pixFrag[] = "Shaders/pixtex.frag";
   shader[0] = CreateShaderProg(pixVert,pixFrag);
+
+  //Set up objects to draw
   mq9 = new MQ9();
   hangar = new Hangar(shader,10);
   bomber = new XB70Bomber();
@@ -393,24 +387,18 @@ void centerWindow(GLFWwindow *window, GLFWmonitor *monitor)
 
 void drawScene(){
   hangar->drawHangar(25,0,17.5,scale);
-
-  
-  bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
-  myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
-  
-  myJet->drawFighterJet(125,13.75,145,1,0,1,0,1,0,4,0,0, true);
-  myJet->drawFighterJet(615,13.75,390,-1,0,-1,0,1,0,4,0,0,true);
-
   glUseProgram(shader[0]);
+
+  myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
+  bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
+  myJet->drawFighterJet(615,13.75,390,-1,0,-1,0,1,0,4,0,0,true);
+  myJet->drawFighterJet(125,13.75,145,1,0,1,0,1,0,4,0,0, true);
   mq9->drawMQ9(112,15,412,350,90,180,-25);
   uh60->drawuh60(420,12.3,440,8,90,180,90);
   bomber->drawBomber(380,31,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);
   f16->drawF16(637.5,19,112.5,55,0,220,0,true);
   f16->drawF16(262,150,262,50,0,-40,20,false);
   
-  glPushMatrix();
-  glRotated(20,0,0,1);
-  glPopMatrix();
   mi28->drawMi28(375,15.50,90,18,0,90,-4.5);
   
   glUseProgram(0);
@@ -471,4 +459,27 @@ void generateShadow(float Position[]){
     
   //  Undo glEnables
   glPopAttrib();
+}
+
+void drawFlyingFighterJets(){
+  //Draw two flying jets
+  myJet->drawFighterJet(500*Cos(th)+350,450,500*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+  myJet->drawFighterJet(550*Cos(th)+350,600,550*Sin(th)+250,-Sin(th),0,Cos(th),0,1,0,4,50,0,false);
+}
+
+void drawLabels(){
+  glRasterPos3d(112,30,412);
+  Print("MQ-9 Reaper");
+  glRasterPos3d(637.5,30,112.5);
+  Print("F-16");
+  glRasterPos3d(380,50,250);
+  Print("XB-70 Valkyrie");
+  glRasterPos3d(125,20,145);
+  Print("JAS 39 Gripen");
+  glRasterPos3d(615,20,390);
+  Print("JAS 39 Gripen");
+  glRasterPos3d(420,40,440);
+  Print("UH-60 Black Hawk");
+  glRasterPos3d(375,40,90);
+  Print("Mil Mi-28");
 }
