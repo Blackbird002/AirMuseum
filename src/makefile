@@ -1,5 +1,5 @@
 # Example GLFW21
-EXE=finalProject
+EXE=final
 
 # Main target
 all: $(EXE)
@@ -47,8 +47,8 @@ Mi28.cpp.o: Mi28.cpp CSCIx229.h
 	g++ -c $(CFLG) $<
 
 #  Link
-finalProject:finalProject.o fatal.o loadtexbmp.o shaderFunctions.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o Hangar.o Camera.o XB70Bomber.o UH60.o FighterJet.o MQ9.o object.o F16.o Mi28.o
-	g++ -O3 -o $@ $^ Camera.cpp Hangar.cpp  -lglfw -lGLU -lGL -lm -lpthread 
+final:finalProject.o fatal.o loadtexbmp.o shaderFunctions.o project.o errcheck.o print-dl.o mathHelpers.o drawLibrary.o Hangar.o Camera.o XB70Bomber.o UH60.o FighterJet.o MQ9.o object.o F16.o Mi28.o
+	g++ -O3 -o $@ $^ Camera.cpp Hangar.cpp  -lglfw -lGLU -lGL -lm  
 
 #  Clean
 clean:

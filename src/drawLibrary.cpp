@@ -435,14 +435,14 @@ void Cylinder(float x,float y,float z ,float thx,float thy ,float r,float h)
   int i,j;   // Counters
   int N=4*8; // Number of slices
 
-  //  Transform
+  //Transform
   glPushMatrix();
   glTranslated(x,y+h,z);
   glRotated(thx,1,0,0);
   glRotated(thy,0,1,0);
   glScaled(r,r,h);
 
-  // wo end caps (fan of triangles)
+  //wo end caps (fan of triangles)
   for (j=-1;j<=1;j+=2)
   {
     glNormal3d(0,0,j); 
@@ -563,7 +563,7 @@ void drawBoundaryRope(double x,double y,double z, double thY, double xOffset, do
   //  Offset
   glTranslated(x,y,z);
   glRotated(thY,0,1,0);
-  glColor3d(1,0,0); 
+  glColor3d(0.5,0,0); 
 
   glLineWidth(3);
   glBegin(GL_LINE_STRIP);
@@ -576,4 +576,3 @@ void drawBoundaryRope(double x,double y,double z, double thY, double xOffset, do
   //Restore
   glPopMatrix();
 }
-

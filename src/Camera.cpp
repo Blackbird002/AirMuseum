@@ -12,8 +12,8 @@ public:
 
     double dim=200;   // Dimension of orthogonal box
 
-    double th=321;         //  Azimuth of view angle (y)
-    double ph=29;         //  Elevation of view angle (x)
+    double th;         //  Azimuth of view angle (y)
+    double ph;         //  Elevation of view angle (x)
 
     double scale;
     bool movementRestriction;
@@ -21,17 +21,21 @@ public:
     double xMax,xMin,zMin,zMax;
 
     Camera(){
-        this->cameraX = 50.0;
-        this->cameraY = 10.0;
-        this->cameraZ = 25.0;
+        cameraX = 50.0;
+        cameraY = 10.0;
+        cameraZ = 25.0;
+        ph = 2.0;
+        th = 270;
     }
 
     Camera(double x, double y, double z, double dim, double hangarScale, bool restriction){
-        this->cameraX = x;
-        this->cameraY = y;
-        this->cameraZ = z;
+        cameraX = x;
+        cameraY = y;
+        cameraZ = z;
         this->dim = dim;
-        this->scale = hangarScale;
+        scale = hangarScale;
+        this->ph = 2.0;
+        this->th = 270;
 
         xMax = scale * 49;
         xMin = scale * 1;
