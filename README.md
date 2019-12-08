@@ -27,6 +27,7 @@ below
 
 
 ## Key bindings:
+```
   ESC   - Exit
   w       - Move worward
   s       - Move backward
@@ -36,3 +37,7 @@ below
   R Arrow - Look right (Camera)
   U Arrow - Look down (Camera)
   D Arrow - Look down (Camera)
+```
+
+![photo1](Screenshots/photo1.png "photo1")
+![photo2](Screenshots/photo2.png "photo2")
