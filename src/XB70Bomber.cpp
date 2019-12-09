@@ -4,7 +4,7 @@ class XB70Bomber{
 public: 
 
     int shininess =   0;  // Shininess (power of two)
-    float shiny   =   1;  // Shininess (value)
+    float shiny   =   50;  // Shininess (value)
     float emission  =   0;  // Emission intensity (%)
 
     XB70Bomber(){
@@ -14,6 +14,7 @@ public:
         texture[1] = LoadTexBMP("Textures/MetalUs.bmp");
         texture[2] = LoadTexBMP("Textures/al.bmp");
         texture[3] = LoadTexBMP("Textures/glass.bmp");
+        texture[4] = LoadTexBMP("Textures/tire.bmp");
     }
 
 // ----------------------------------------------------------
@@ -498,6 +499,7 @@ void drawBomber(double x,double y,double z,
   // Landing Gear
   // ----------------------------------------------------------
   if(landGear){
+    glBindTexture(GL_TEXTURE_2D,texture[4]);
     drawLandingGear(frontFuselageXEnd+6,-shipWidth,0,6,1);
     drawLandingGearRearBomber(inletMiddleRearX+10,inletY,4,4.25,1);
     drawLandingGearRearBomber(inletMiddleRearX+10,inletY,-4,4.25,1);

@@ -295,30 +295,31 @@ void ball(double x,double y,double z,double r, float emission, float shiny, int 
  *     rotation about
  */
 void planeTire(double x,double y,double z, double r){
+  glEnable(GL_TEXTURE_2D);
   //  Save transformation
   glPushMatrix();
   //  Offset and scale
   glTranslated(x,y,z-0.25);
     glRotated(0,0,1,0);
   glScaled(r,r,r);
-  glColor3f(0,0,0);
+  glColor3f(1,1,1);
 
   glNormal3f(0,0,-1);
   glBegin(GL_TRIANGLE_FAN);
-    //glTexCoord2f(0.5,0.5);
+    glTexCoord2f(0.5,0.5);
     glVertex3f(0,0,0);
     for(int k=0;k<=360;k+=10){
-      //glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+      glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
       glVertex3f(Cos(k),Sin(k),0);
     }
   glEnd();
 
   glNormal3f(0,0,1);
   glBegin(GL_TRIANGLE_FAN);
-  //glTexCoord2f(0.5,0.5);
+  glTexCoord2f(0.5,0.5);
   glVertex3f(0,0,0.5);
   for(int k=0;k<=360;k+=10){
-    //glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+    glTexCoord2d(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
     glVertex3f(Cos(k),Sin(k),0.5);
   }
   glEnd();
@@ -334,6 +335,7 @@ void planeTire(double x,double y,double z, double r){
 
   //  Undo transformations
   glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
 }
 
 /*
@@ -379,8 +381,8 @@ void drawLandingGearRearBomber(double x,double y,double z, double h, double s){
   glTranslated(x,y,z);
   glScaled(s,s,s);
   
-  planeTire(1.1,0-h,0+0.5,1);
-  planeTire(-1.1,0-h,0+0.5,1);
+  planeTire(1,0-h,0+0.5,1);
+  planeTire(-1,0-h,0+0.5,1);
   glLineWidth(4);
   glColor3d(0.5,0.5,0.5);
   glBegin(GL_LINES);
@@ -390,8 +392,8 @@ void drawLandingGearRearBomber(double x,double y,double z, double h, double s){
     glVertex3f(0,0-h,-0.5);
   glEnd();
   glLineWidth(1);
-  planeTire(1.1,0-h,0-0.5,1);
-  planeTire(-1.1,0-h,0-0.5,1);
+  planeTire(1,0-h,0-0.5,1);
+  planeTire(-1,0-h,0-0.5,1);
 
   //  Undo transformations
   glPopMatrix();

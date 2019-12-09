@@ -15,6 +15,7 @@ public:
     texture[3] = LoadTexBMP("Textures/glass.bmp");
     texture[4] = LoadTexBMP("Textures/engineTexture.bmp");
     texture[5] = LoadTexBMP("Textures/imageBurner.bmp");
+    texture[6] = LoadTexBMP("Textures/tire.bmp");
   }
 
 // ----------------------------------------------------------
@@ -383,6 +384,7 @@ public:
   // Landing Gear
   // ----------------------------------------------------------
   if(landingGear){
+    glBindTexture(GL_TEXTURE_2D,texture[6]);
     drawLandingGear(shipBowXend-2,-wid,0,4.5,0.5);
     drawLandingGearOneTireAngled(wingXend+3.5,-wid,1.25,4.5,0.5,2);
     drawLandingGearOneTireAngled(wingXend+3.5,-wid,-1.25,4.5,0.5,-2);
