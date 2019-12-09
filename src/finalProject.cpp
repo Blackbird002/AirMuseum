@@ -1,3 +1,9 @@
+/*
+Riad Shash (Ray)
+CSCI 4/5229
+Final Project - Airplane Museum
+*/
+
 #define GL_GLEXT_PROTOTYPES
 #include <GLFW/glfw3.h>
 #include "CSCIx229.h"
@@ -11,6 +17,21 @@
 #include "Mi28.cpp"
 #include <iostream>
 #include <cstring>
+
+/********************************************************************************
+Key bindings:
+
+  ESC   - Exit
+  w       - Move worward
+  s       - Move backward
+  a       - Strafe left
+  d       - Strafe right
+  c       - crouch
+  L Arrow - Look left (Camera)
+  R Arrow - Look right (Camera)
+  U Arrow - Look down (Camera)
+  D Arrow - Look down (Camera)
+********************************************************************************/ 
 
 // ----------------------------------------------------------
 // Global Variables
@@ -30,6 +51,7 @@ double THZ;
 unsigned int texture[12]; // Texture names
 double previousMouseY;
 double previousMouseX;
+bool crouch = false;
 
 //Pointers to objects
 Camera* camera;
@@ -118,10 +140,13 @@ void key(GLFWwindow* window,int key,int scancode,int action,int mods){
     else if(key == GLFW_KEY_D )
       camera->strafeRight();
       //  Change field of view angle
-    else if (key == GLFW_KEY_Z){
-        fov--;   
+    else if(key == GLFW_KEY_Z){
+      fov--;   
     }else if (key == GLFW_KEY_X){
-        fov++;
+      fov++;
+    }else if(key == GLFW_KEY_C){
+      camera->crouch();
+      crouch ? crouch = false : crouch = true;
     }
   }
   
@@ -232,6 +257,9 @@ void display(GLFWwindow* window){
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
   Print("Camera Position: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
+
+  glWindowPos2i(5,20);
+  if(crouch) Print("Crouching");
 
   //Render the scene and make it visible
   ErrCheck("display");

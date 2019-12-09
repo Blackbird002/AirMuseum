@@ -235,8 +235,6 @@ public:
   glEnd();
   glDisable(GL_POLYGON_OFFSET_FILL);
 
-
-
   // ----------------------------------------------------------
   // Cockpit
   // ---------------------------------------------------------
@@ -258,7 +256,7 @@ public:
     findDispVector(canardXfront, -0.30, inletZ+wid, canardXend+1, 0, inletZ+wid, &aX, &aY, &aZ);
     findDispVector(canardXend, 0.30, inletZ+canardZ, canardXend+1, 0.30, inletZ+canardZ, &bX, &bY, &bZ);
     findNormalVector(aX,aY,aZ,bX,bY,bZ,&nX,&nY,&nZ); 
-    glNormal3d(nX,nY,nZ);
+    glNormal3d(nX,nY,-nZ);
     glTexCoord2f(0,1);glVertex3d(canardXfront, -0.30, inletZ+wid);
     glTexCoord2f(0,0.2);glVertex3d(canardXend+1, 0, inletZ+wid);
     glTexCoord2f(1,0);glVertex3d(canardXend, 0.30, inletZ+canardZ);

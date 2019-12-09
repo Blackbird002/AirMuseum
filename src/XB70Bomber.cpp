@@ -428,6 +428,10 @@ void drawBomber(double x,double y,double z,
   // Inlets
   // ----------------------------------------------------------
   glBindTexture(GL_TEXTURE_2D,texture[2]);
+
+  //Turn on double sided lighting (Draw counter-clockwise)
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1);
+
   //Inlet middle, left and right side
   glColor3f(1,1,1); //white
   glBegin(GL_QUADS);
@@ -494,6 +498,9 @@ void drawBomber(double x,double y,double z,
     glTexCoord2f(0,0);glVertex3d(inletMiddleRearX, inletY, 0);
     glTexCoord2f(3,0);glVertex3d(inletMiddleForntX, inletY, 0);
   glEnd();
+
+  //Turn off double sided lighting
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,0);
 
   // ----------------------------------------------------------
   // Landing Gear

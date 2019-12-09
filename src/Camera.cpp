@@ -15,6 +15,9 @@ public:
     double th;         //  Azimuth of view angle (y)
     double ph;         //  Elevation of view angle (x)
 
+    double originalHeight;
+    double crouchHeight;
+
     double scale;
     bool movementRestriction;
 
@@ -30,6 +33,8 @@ public:
 
     Camera(double x, double y, double z, double dim, double hangarScale, bool restriction){
         cameraX = x;
+        originalHeight = y;
+        crouchHeight = y/2.0 - 1;
         cameraY = y;
         cameraZ = z;
         this->dim = dim;
@@ -82,6 +87,13 @@ public:
 
     void strafeRight(){
         rightStrafeMovement(cameraLookX, cameraLookY, cameraLookZ, 2);
+    }
+
+    void crouch(){
+        if(cameraY == originalHeight)
+            cameraY = crouchHeight;
+        else
+            cameraY = originalHeight;
     }
 
     private:
