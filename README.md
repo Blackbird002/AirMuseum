@@ -6,6 +6,15 @@ I am using GLFW for the OpenGL Context and Window manager.
 I restrict movement onto the red carpet areas and from leaving the hangar...
 
 ### Bulid & Run:
+
+You need GLFW - a lightweight utility library for use with OpenGL.
+Ubuntu:
+```
+$ sudo apt-get install libglfw3
+$ sudo apt-get install libglfw3-dev
+```
+
+
 In the AirMeseum directory I just type:
 
 ```
