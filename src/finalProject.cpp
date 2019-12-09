@@ -391,7 +391,7 @@ void drawScene(){
   myJet->drawFighterJet(450,150,400,1,0,1,0,1,0,4,0,15,false);
   bomber->drawBomber(450,200,350, 1,0,1, 0,1,0, 3.5, 0, 15, false);
   myJet->drawFighterJet(615,13.75,390,-1,0,-1,0,1,0,4,0,0,true);
-  myJet->drawFighterJet(125,13.75,145,1,0,1,0,1,0,4,0,0, true);
+  myJet->drawFighterJet(135,13.75,135,1,0,1,0,1,0,4,0,0, true);
   mq9->drawMQ9(112,15,412,350,90,180,-25);
   uh60->drawuh60(420,12.3,440,8,90,180,90);
   bomber->drawBomber(380,31,250, 1,0,0, 0,1,0, 3.5, 0, 0, true);

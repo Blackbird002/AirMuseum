@@ -58,6 +58,7 @@ void drawBoundaryPolesSquare(double x,double y,double z, double h, int shader[])
 void drawBoundaryPolesRectangle(double x,double y,double z, double h, int shader[]);
 void drawBoundaryPolesCenter(double x,double y,double z, double h, int shader[]);
 void drawBoundaryRope(double x,double y,double z, double thY, double xOffset, double yOffset);
+void drawLandingGearRearBomber(double x,double y,double z, double h, double s);
 void skyboxCube(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th, float emission, float shiny, unsigned int texture[]);

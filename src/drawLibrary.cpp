@@ -334,7 +334,6 @@ void planeTire(double x,double y,double z, double r){
 
   //  Undo transformations
   glPopMatrix();
-  glEnable(GL_TEXTURE_2D);
 }
 
 /*
@@ -361,6 +360,38 @@ void drawLandingGear(double x,double y,double z, double h, double s){
   glEnd();
   glLineWidth(1);
   planeTire(0,0-h,0-0.5,1);
+
+  //  Undo transformations
+  glPopMatrix();
+  glEnable(GL_LIGHTING);
+}
+
+/*
+ *  Draw landing gear rear bomber
+ *     at (x,y,z)
+ *     h is height going down from <x,y,z>
+ *     s is the scale
+ */
+void drawLandingGearRearBomber(double x,double y,double z, double h, double s){
+  glDisable (GL_LIGHTING);
+  glPushMatrix();
+  //  Offset
+  glTranslated(x,y,z);
+  glScaled(s,s,s);
+  
+  planeTire(1.1,0-h,0+0.5,1);
+  planeTire(-1.1,0-h,0+0.5,1);
+  glLineWidth(4);
+  glColor3d(0.5,0.5,0.5);
+  glBegin(GL_LINES);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0-h, 0);
+    glVertex3f(0,0-h,0.5);
+    glVertex3f(0,0-h,-0.5);
+  glEnd();
+  glLineWidth(1);
+  planeTire(1.1,0-h,0-0.5,1);
+  planeTire(-1.1,0-h,0-0.5,1);
 
   //  Undo transformations
   glPopMatrix();

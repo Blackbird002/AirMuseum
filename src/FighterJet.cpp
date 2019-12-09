@@ -384,8 +384,8 @@ public:
   // ----------------------------------------------------------
   if(landingGear){
     drawLandingGear(shipBowXend-2,-wid,0,4.5,0.5);
-    drawLandingGearOneTireAngled(wingXend+3.5,-wid,1.5,4.5,0.5,1);
-    drawLandingGearOneTireAngled(wingXend+3.5,-wid,-1.5,4.5,0.5,-1);
+    drawLandingGearOneTireAngled(wingXend+3.5,-wid,1.25,4.5,0.5,2);
+    drawLandingGearOneTireAngled(wingXend+3.5,-wid,-1.25,4.5,0.5,-2);
   }
   glEnable(GL_TEXTURE_2D);
 

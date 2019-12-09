@@ -24,8 +24,8 @@ public:
 
         if(landingGear){
             drawLandingGearOneTire(0.35,-0.11,0,3.8,0.05);
-            drawLandingGearOneTireAngled(-0.22,-0.11,-0.075,3.8,0.05,-2);
-            drawLandingGearOneTireAngled(-0.22,-0.11,0.075,3.8,0.05,2);
+            drawLandingGearOneTireAngled(-0.22,-0.11,-0.075,3.8,0.05,-2.6);
+            drawLandingGearOneTireAngled(-0.22,-0.11,0.075,3.8,0.05,2.6);
         }
 
         glPopMatrix();
