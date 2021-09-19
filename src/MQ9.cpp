@@ -6,7 +6,7 @@ public:
     float emission = 0;
     MQ9(){
         //  Load object
-        obj = LoadOBJ("MQ-9.obj");
+        obj = LoadOBJ("../Objects/mq9/MQ-9.obj");
     }
 
     void drawMQ9(double x,double y,double z, double scale, double thx, double thy, double thz){

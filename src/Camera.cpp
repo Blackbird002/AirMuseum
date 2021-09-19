@@ -1,7 +1,8 @@
 #include "CSCIx229.h"
 #include <iostream>
 
-class Camera{
+class Camera
+{
 
 public:
     // What the camera is looking at vector

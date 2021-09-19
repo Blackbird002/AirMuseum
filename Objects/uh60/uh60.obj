@@ -4,7 +4,7 @@
 # Right Hemisphere, LTD
 # http://www.righthemisphere.com/
 # 
-mtllib uh60.mtl
+mtllib ../Objects/uh60/uh60.mtl
 # object window_R1
 g window_R1
 v 1.16140 1.71358 0.81743

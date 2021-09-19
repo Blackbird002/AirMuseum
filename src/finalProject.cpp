@@ -256,7 +256,7 @@ void display(GLFWwindow* window){
   //On Screen Text Display
   glColor3f(0,1,0);
   glWindowPos2i(5,5);
-  Print("Camera Position: [%.1f ,%.1f ,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
+  Print("Camera Position: [%.1f,%.1f,%.1f]", camera->cameraX, camera->cameraY, camera->cameraZ);
 
   glWindowPos2i(5,20);
   if(crouch) Print("Crouching");
@@ -300,7 +300,7 @@ int main(int argc, char* argv[]){
   glfwWindowHint(GLFW_DOUBLEBUFFER,1);
 
   //  Create window and make current
-  window = glfwCreateWindow(1280,720, "Riad Shash (Ray) Final Project - GLFW", nullptr, nullptr);
+  window = glfwCreateWindow(1920,1080, "Riad Shash (Ray) Final Project - GLFW", nullptr, nullptr);
   if (!window) Fatal("Cannot create GLFW window\n");
 
   //Center the GLFW window

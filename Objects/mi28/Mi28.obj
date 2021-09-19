@@ -1,6 +1,7 @@
 # Blender v2.74 (sub 0) OBJ File: 'Mi28.blend'
 # www.blender.org
-mtllib Mi28.mtl
+mtllib ../Objects/mi28/Mi28.mtl
+
 o Cylinder.007_Cylinder.000
 v 0.684368 0.395357 -0.512714
 v 0.684368 0.337259 -0.023667

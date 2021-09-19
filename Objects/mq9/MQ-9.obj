@@ -4,7 +4,7 @@
 # Right Hemisphere, LTD
 # http://www.righthemisphere.com/
 # 
-mtllib MQ-9.mtl
+mtllib ../Objects/mq9/MQ-9.mtl
 # object lg_L01_pivot
 g lg_L01_pivot
 v 0.00227 0.01872 -0.01278
