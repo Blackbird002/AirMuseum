@@ -11,7 +11,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 17.1484
-map_Kd fuselage.bmp
+map_Kd ../Objects/uh60/fuselage.bmp
 map_bump 
 bump 
 map_opacity 
@@ -60,7 +60,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 34.2967
-map_Kd pal.bmp
+map_Kd ../Objects/uh60/pal.bmp
 map_bump 
 bump 
 map_opacity 
@@ -76,7 +76,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 21.1121
-map_Kd Plt.bmp
+map_Kd ../Objects/uh60/Plt.bmp
 map_bump 
 bump 
 map_opacity 

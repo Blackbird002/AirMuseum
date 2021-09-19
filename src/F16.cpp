@@ -6,7 +6,7 @@ public:
     float emission = 0;
     F16(){
         //  Load object
-        obj = LoadOBJ("f16.obj");
+        obj = LoadOBJ("../Objects/f16/f16.obj");
     }
 
     void drawF16(double x,double y,double z, double scale, double thx, double thy, double thz, bool landingGear){

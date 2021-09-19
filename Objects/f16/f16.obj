@@ -6,7 +6,7 @@
 #
 #  Normals and textures
 
-mtllib f16.mtl
+mtllib ../Objects/f16/f16.mtl
 v 0.905208 -0.054739 -0.000000
 v 0.419950 -0.135968 0.000000
 v -0.767107 -0.010612 0.171100

@@ -6,7 +6,7 @@ public:
     float emission = 0;
     UH60(){
         //  Load object
-        obj = LoadOBJ("uh60.obj");
+        obj = LoadOBJ("../Objects/uh60/uh60.obj");
     }
 
     void drawuh60(double x,double y,double z, double scale, double thx, double thy, double thz){

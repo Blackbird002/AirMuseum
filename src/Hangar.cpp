@@ -1,6 +1,7 @@
 #include "CSCIx229.h"
 
-class Hangar{
+class Hangar
+{
 
 public:
     int mode;
@@ -14,10 +15,10 @@ public:
         texture[3] = LoadTexBMP("Textures/HangarTextures/hangarTopWall.bmp");
         texture[4] = LoadTexBMP("Textures/al.bmp");
         texture[5] = LoadTexBMP("Textures/wood.bmp");
+
         for(int i =0; i < size; i++){
             shader[i] = shaderArray[i];
         }
-        
     }
 
     void drawHangar(double x, double y, double z, double r){
@@ -76,7 +77,7 @@ public:
 
 private:
 
-    unsigned int texture[5]; // Texture names
+    unsigned int texture[10]; // Texture names
 
     // ----------------------------------------------------------
     // Aircraft Hangar Roof top portion

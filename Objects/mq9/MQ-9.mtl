@@ -11,9 +11,9 @@ Kd 1 1 1
 Ks 0.99 0.99 0.99
 illum 2
 Ns 34.2967
-map_Kd predator.bmp
-map_bump predator_Normal.bmp
-bump predator_Normal.bmp
+map_Kd ../Objects/mq9/predator.bmp
+map_bump ../Objects/mq9/predator_Normal.bmp
+bump ../Objects/mq9/predator_Normal.bmp
 map_opacity 
 map_d 
 refl 
@@ -27,9 +27,9 @@ Kd 1 1 1
 Ks 0.99 0.99 0.99
 illum 2
 Ns 34.2967
-map_Kd predator.bmp
-map_bump predator_Normal.bmp
-bump predator_Normal.bmp
+map_Kd ../Objects/mq9/predator.bmp
+map_bump ../Objects/mq9/predator_Normal.bmp
+bump ../Objects/mq9/predator_Normal.bmp
 map_opacity 
 map_d 
 refl 
@@ -75,7 +75,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 22.6274
-map_Kd missile.bmp
+map_Kd ../Objects/mq9/missile.bmp
 map_bump 
 bump 
 map_opacity 

@@ -6,7 +6,7 @@ public:
     float emission = 0;
     Mi28(){
         //  Load object
-        obj = LoadOBJ("Mi28.obj");
+        obj = LoadOBJ("../Objects/mi28/Mi28.obj");
     }
 
     void drawMi28(double x,double y,double z, double scale, double thx, double thy, double thz){

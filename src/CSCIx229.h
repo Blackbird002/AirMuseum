@@ -18,6 +18,9 @@
 #include <GL/glut.h>
 #endif
 
+#include <GLFW/glfw3.h>
+#include <GL/glu.h>
+
 #define Cos(th) (float)cos(3.1415926/180*(th))
 #define Sin(th) (float)sin(3.1415926/180*(th))
 

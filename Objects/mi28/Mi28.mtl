@@ -8,7 +8,7 @@ Kd 0.640000 0.640000 0.640000
 Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
-map_Kd Mi28NB.bmp
+map_Kd ../Objects/mi28/Mi28NB.bmp
 illum 2
 
 newmtl Mi_28
@@ -18,5 +18,5 @@ Kd 0.640000 0.640000 0.640000
 Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
-map_Kd Mi28NB.bmp
+map_Kd ../Objects/mi28/Mi28NB.bmp
 illum 2
